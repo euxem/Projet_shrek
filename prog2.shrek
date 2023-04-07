@@ -1,0 +1,26 @@
+node:a = "A";
+node:d = "B";
+sub = "A";
+x=1;
+while x<=1000 do
+    node:b = a | x;
+    y=x+1;
+    node:c = a | y;
+    link:b:c 2 red;
+    x=x+1;
+done;
+sub = "B";
+x=1;
+while x<=100 do
+    node:b = d | x;
+    y=x+1;
+    node:c = d | y;
+    link:b:c;
+    x=x+1;
+done;
+node:i = "initial";
+node:a = a | 1;
+node:d = d | 1;
+closesub;
+link:i:a;
+link:i:d;

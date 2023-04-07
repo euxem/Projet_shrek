@@ -1,0 +1,14 @@
+node:f = "a" | "b";
+read:X;
+X= X + 2 - 3 * (1+1);
+write:float X;
+while X < 5 + 1 do
+    if X == 1 then
+        node:a = "A" | "B";
+        write:node a | "e";
+    else
+        node:a = "1";
+        write:node a;
+    fi;
+    X = X + 1;
+done;

@@ -1,0 +1,74 @@
+pgm -> seq_inst FIN
+-----------------------
+seq_inst -> inst suite_seq_inst
+-----------------------
+suite_seq_inst -> SEPARATEUR seq_inst
+suite_seq_inst -> e
+-----------------------
+inst -> seq_aff
+inst -> FOR DEUX_POINT suite_for
+inst -> LINK DEUX_POINT IDF DEUX_POINT IDF suite_link
+inst -> ECRIRE DEUX_POINT suite_ecrire
+inst -> SI condition ALORS seq_inst SINON seq_inst
+inst -> TANT_QUE condition FAIRE seq_inst FAIT
+-----------------------
+seq_aff -> NODE DEUX_POINT IDF AFF suite_node
+seq_aff -> SUBGRAPH DEUX_POINT AFF string
+seq_aff -> IDF AFF eag
+seq_aff -> LIRE DEUX_POINT IDF
+seq_aff -> LIRE DEUX_POINT NODE IDF
+-----------------------
+suite_ecrire -> NODE IDF suite_concat
+suite_ecrire -> FLOAT eag
+-----------------------
+suite_node -> IDF AFF string suite_concat
+suite_node -> IDF AFF IDF suite_concat
+suite_node -> IDF AFF FLOAT suite_concat
+-----------------------
+eag -> seq_terme
+-----------------------
+seq_terme -> terme suite_seq_terme
+-----------------------
+suite_seq_terme -> PLUS seq_terme
+suite_seq_terme -> MOINS seq_terme
+suite_seq_terme -> e
+-----------------------
+terme -> seq_facteur
+-----------------------
+seq_facteur -> facteur suite_seq_facteur
+-----------------------
+suite_seq_facteur -> MUL seq_facteur
+suite_seq_facteur -> DIV seq_facteur
+suite_seq_facteur -> e
+-----------------------
+facteur -> FLOAT
+facteur -> IDF
+facteur -> PARO eag PARF
+-----------------------
+op1 -> PLUS
+op1 -> MOINS
+-----------------------
+op2 -> MUL
+op2 -> DIV
+-----------------------
+suite_concat -> concat string suite_concat
+suite_concat -> concat FLOAT suite_concat
+suite_concat -> concat IDF suite_concat
+suite_concat -> e
+-----------------------
+suite_link -> int col
+suite link -> int
+suite_link -> e
+-----------------------
+col -> red
+col -> blue
+col -> yellow
+col -> green
+-----------------------
+suite_for -> NODE inter parent
+suite_for -> LINK inter inter
+suite_for -> LINK inter inter crochet
+suite_for -> LINK inter inter crochet parent
+-----------------------
+IDF -> lettre unique ou suite de truc
+AFF -> =

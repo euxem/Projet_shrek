@@ -1,0 +1,12 @@
+read:x;
+y=x+1;
+g=0;
+while x<=100 do
+    g=g+1;
+    node:a=x;
+    node:b=y|"A";
+    write:node x|":"|y;
+    link:a:b g red;
+    x = x + 1;
+    y = y + 1;
+done;

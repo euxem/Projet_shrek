@@ -1,0 +1,5 @@
+for (a=20;a>10;a-1) do
+    map:node [b,d,e] 'mz,ze,fd';
+    link:b:d;
+    write:float a;
+rof;
