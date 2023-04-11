@@ -2,3 +2,5 @@ shrek
 test_lexeme
 test_syntax
 test_ast
+output.dot
+.vscode
