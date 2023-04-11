@@ -685,5 +685,5 @@ int est_caractère_lexeme_suivant(char c){
 
 void perror(const char *s)
 {
-    printf("\x1b[1;31%s\x1b[0m", s);
+    printf("\x1b[1;31m%s\x1b[0m", s);
 }

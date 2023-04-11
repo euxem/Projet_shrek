@@ -292,7 +292,7 @@ void Rec_seq_aff(Ast *A){
         if (lexeme_courant().nature != AFF){
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
-            printf("HINT : Affection attendue.\n");
+            printf("HINT : Affectation attendue.\n");
             exit(1);
         }
         avancer();
@@ -366,7 +366,7 @@ void Rec_seq_aff(Ast *A){
         if (lexeme_courant().nature != AFF){
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
-            printf("HINT : Affection attendue.\n");
+            printf("HINT : Affectation attendue.\n");
             exit(1);
         }
         avancer();
