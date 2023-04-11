@@ -1,0 +1,5 @@
+# Ce commentaire n'est pas correctement fermé
+tout ce texte est donc ignoré
+node:a=inutile;
+
+Il est interdit de laisser un commentaire non fermé, même à la fin d'un fichier.
