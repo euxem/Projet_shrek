@@ -51,6 +51,11 @@ void avancer_car()
          {
             CarCour = fgetc(File);
          } while (CarCour != '#' && CarCour != EOF);
+         if (CarCour == EOF) {
+            perror("Erreur : commentaire non terminé\n");
+            printf("HINT : Vérifiez que le commentaire est bien terminé par un #\n");
+         }
+         CarCour = fgetc(File);
       }
 
       if (CarCour != '\n')
