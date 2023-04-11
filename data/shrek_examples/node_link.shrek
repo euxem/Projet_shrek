@@ -1,0 +1,17 @@
+# Un node peut être déclaré comme cela : #
+node:a = "Nom"; # node a de nom "Nom" #
+
+# Pour pouvoir nommer des nodes facilement #
+# Il est possible d'utiliser l'opérateur pipe #
+# pour concaténer des noms ou strings #
+node:b = "Nom" | "de" | "node" | "a"; # node a de nom "Nom de node a" #
+
+X = 1; # Déclaration d'une variable X de valeur 1 #
+node:c = a | X; # node c de nom "Nom1" #
+
+# Un link est une relation entre deux nodes #
+# Il prend deux nodes en argument #
+link:a:c; # link entre node a (Nom) et node c (Nom1) #
+
+# Et peut être assigné un poids et une couleur #
+link:a:b 4 red; # link entre node a (Nom) et node b (Nomdenodea) de poids 4 et de couleur rouge #

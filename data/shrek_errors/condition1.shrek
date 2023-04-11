@@ -1,0 +1,4 @@
+# Une condition doit continuer avec un else ou un fi #
+X = 1;
+if X == 1 then
+    node:a = "A";

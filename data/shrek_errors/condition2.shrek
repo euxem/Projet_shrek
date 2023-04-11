@@ -1,0 +1,8 @@
+# Une condition ne peut être comparée qu'à un entier #
+X = 1;
+node:b = "B";
+if X == 2 then
+    node:a = "A";
+fi;
+
+link:b:a 2;

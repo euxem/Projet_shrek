@@ -1,3 +1,5 @@
+# La boucle while a besoin d'une condition et se termine #
+# par le mot clé done. #
 read:x;
 y=x+1;
 g=0;

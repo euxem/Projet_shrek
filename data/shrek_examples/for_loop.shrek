@@ -1,3 +1,9 @@
+# Une boucle for fonctionne comme en c. #
+# Elle prend 3 arguments : #
+# 1. une variable #
+# 2. une condition #
+# 3. une action #
+
 for (a=20;a>10;a-1) do
     map:node [b,d,e] 'mz,ze,fd';
     link:b:d;

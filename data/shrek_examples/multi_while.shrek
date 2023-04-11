@@ -9,6 +9,8 @@ while x<=1000 do
     link:b:c 2 red;
     x=x+1;
 done;
+
+# Déclaration d'un sous graph B #
 sub = "B";
 x=1;
 while x<=100 do
@@ -22,5 +24,8 @@ node:i = "initial";
 node:a = a | 1;
 node:d = d | 1;
 closesub;
+
+# Fin du sous graph B #
+
 link:i:a;
 link:i:d;

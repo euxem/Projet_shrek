@@ -1,0 +1,7 @@
+# Write peut être utilisé pour écrire dans la console. #
+# La commande write:node y écrit le nom d'un node. #
+# L'opérateur pipe | permet de concaténer des chaînes de caractères. #
+node:a = "A" | "B";
+write:node a | "e";
+X = 5;
+write:float X;
