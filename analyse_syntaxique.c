@@ -480,13 +480,13 @@ void Rec_facteur(Ast *A)
         }
         else
         {
-            printf("Erreur syntaxique.\n");
+            // printf("Erreur syntaxique.\n");
             return;
         }
     }
     else
     {
-        printf("Erreur syntaxique.\n");
+        // printf("Erreur syntaxique.\n");
         return;
     }
 }
