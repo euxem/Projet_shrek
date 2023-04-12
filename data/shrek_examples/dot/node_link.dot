@@ -1,0 +1,4 @@
+graph G {
+	Nom -- Nom1;
+	Nom -- Nomdenodea [label="4", weight=4, color=red];
+}
