@@ -51,11 +51,11 @@ void creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
             {
                 if (cel->nature != nature)
                 {
-                    printf("Erreur de type%d\n",cel->nature);
+                    printf("Erreur de type %d\n", cel->nature);
                     exit(2);
                 }
                 cel->aff_float = val;
-                sprintf(chaine,"%g",val);
+                sprintf(chaine, "%g", val);
                 strcpy(cel->aff_char, chaine);
                 return;
             }
@@ -64,8 +64,8 @@ void creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
         cel = (Cellule *)malloc(sizeof(Cellule));
         cel->nature = FLOAT;
         strcpy(cel->idf, idf);
-        sprintf(chaine,"%g",val);
-        strcpy(cel->aff_char,chaine);
+        sprintf(chaine, "%g", val);
+        strcpy(cel->aff_char, chaine);
         cel->aff_float = val;
         cel->suivant = identifier.tete;
         identifier.tete = cel;
@@ -196,10 +196,11 @@ float appliquer_operation(float a, char *o, float b)
     }
 }
 
-void appliquer_concat(char* a, char *o, char* b, char**c){
+void appliquer_concat(char *a, char *o, char *b, char **c)
+{
     if (*o == '|')
     {
-        strcpy(*c,strcat(a,b));
+        strcpy(*c, strcat(a, b));
     }
     else
     {
@@ -209,49 +210,63 @@ void appliquer_concat(char* a, char *o, char* b, char**c){
     }
 }
 
-float evaluer(Ast A){
+float evaluer(Ast A)
+{
     float f;
-    switch (A->nature){
-        case N_STR:
-            trouver_idf_float(A->chaine,&f);
-            return f*(A->valeur);
-        case N_FLOAT:
-            return A->valeur;
-        case N_OP:
-            if (A->valeur != 0){
-                return appliquer_operation(evaluer(A->gauche),A->chaine,evaluer(A->droite))*(A->valeur);
-            }
-            return appliquer_operation(evaluer(A->gauche),A->chaine,evaluer(A->droite));
-        default:
-            printf("Erreur evaluation float");
-            exit(1);
-            break;
+    switch (A->nature)
+    {
+    case N_STR:
+        trouver_idf_float(A->chaine, &f);
+        return f * (A->valeur);
+    case N_FLOAT:
+        return A->valeur;
+    case N_OP:
+        if (A->valeur != 0)
+        {
+            return appliquer_operation(evaluer(A->gauche), A->chaine, evaluer(A->droite)) * (A->valeur);
+        }
+        return appliquer_operation(evaluer(A->gauche), A->chaine, evaluer(A->droite));
+    default:
+        printf("Erreur evaluation float");
+        exit(1);
+        break;
     }
 }
 
-void evaluer_char(Ast A, char** c){
+void evaluer_char(Ast A, char **c)
+{
     char c1[256];
-    Ast B=A->droite;
-    if (A->nature==N_STR && A->valeur==0){
-            trouver_idf_char(A->chaine, c1);
-        }else{
-            strcpy(c1,A->chaine);
-        }
-    if (B==NULL){
-        strcpy(*c,c1);
-    }else{
-        evaluer_char(B->droite,c);
-        appliquer_concat(c1,B->chaine,*c,c);
+    Ast B = A->droite;
+    if (A->nature == N_STR && A->valeur == 0)
+    {
+        trouver_idf_char(A->chaine, c1);
+    }
+    else
+    {
+        strcpy(c1, A->chaine);
+    }
+    if (B == NULL)
+    {
+        strcpy(*c, c1);
+    }
+    else
+    {
+        evaluer_char(B->droite, c);
+        appliquer_concat(c1, B->chaine, *c, c);
     }
     return;
 }
 
-void free_chainee(){
-    Cellule *cel,*cel_temp;
+void free_chainee()
+{
+    Cellule *cel, *cel_temp;
     cel = identifier.tete;
-    while (cel != NULL){
-        cel_temp=cel;
-        cel=cel->suivant;
+    while (cel != NULL)
+    {
+        cel_temp = cel;
+        cel = cel->suivant;
+        cel_temp->suivant = NULL;
         free(cel_temp);
     }
+    identifier.tete = NULL;
 }

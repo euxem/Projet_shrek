@@ -1,8 +1,9 @@
 #ifndef __TYPE_AST_H__
 #define __TYPE_AST_H__
 
-typedef enum{
-    N_SEPARATEUR,
+typedef enum
+{
+	N_SEPARATEUR,
 	N_SUB,
 	N_NODE,
 	N_LINK,
@@ -20,7 +21,7 @@ typedef enum{
 	N_OP,
 	N_CLOSUB,
 	N_TANT_QUE
-}TypeAst;
+} TypeAst;
 
 typedef struct noeud
 {
@@ -34,6 +35,5 @@ typedef NoeudAst *Ast;
 
 Ast nouvelle_cellule_ast();
 void free_ast(Ast A);
-
 
 #endif
