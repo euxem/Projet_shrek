@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 
     int folder = 0;
 
-    while ((c = getopt(argc, argv, "i:o:f:")) != -1)
+    while ((c = getopt(argc, argv, "i:o:f:h")) != -1)
     {
         switch (c)
         {
