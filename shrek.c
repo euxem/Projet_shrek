@@ -79,7 +79,7 @@ int main(int argc, char **argv)
             printf("Si aucun fichier d'entrée n'est spécifié, l'entrée standard est utilisée.\n");
             printf("Si aucun fichier de sortie n'est spécifié, le fichier 'output.dot' est utilisé.\n");
             printf("Si un dossier est spécifié, tous les fichiers .shrek du dossier seront traduits.\n");
-            printf("Le fichiers .dot seront créés dans un sous dossier /generated_dot.\n");
+            printf("Le fichiers .dot seront créés dans un sous dossier /dot_generes.\n");
             return 0;
         case '?':
         default:
@@ -108,9 +108,9 @@ int main(int argc, char **argv)
         }
 
         // Crée le dossier .dot en sous dossier
-        char *dotpath = malloc(strlen(fpath) + 15);
+        char *dotpath = malloc(strlen(fpath) + 13);
         strcpy(dotpath, fpath);
-        strcat(dotpath, "/generated_dot");
+        strcat(dotpath, "/dot_generes");
         struct stat st = {0};
         if (stat(dotpath, &st) == -1)
         {
