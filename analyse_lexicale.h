@@ -87,7 +87,7 @@ typedef enum
 
 /* --------------------------------------------------------------------- */
 // Fonctions :
-// int intervalle(char c);
+// int intervalle(char c); // Implémentée mais non utilisée
 void demarrer(char *nom_fichier);
 void avancer();
 Lexeme lexeme_courant();
@@ -95,8 +95,15 @@ void reconnaitre_lexeme();
 Nature_Caractere nature_caractere(char c);
 Nature_Lexeme reconnaitre_mot_cle();
 void ajouter_caractere(char *s, char c);
+
+// Fonctions pour l'affichage d'un lexeme
+// Affiche la ligne et la colonne du lexeme dans le fichier
+// Et le contenu du lexeme
 void afficher_lexeme(Lexeme lex);
 int est_caractère_lexeme_suivant(char c);
+
+// Afficher une string d'erreur
+// (En rouge et en gras)
 void perror(const char *s);
 
 #endif

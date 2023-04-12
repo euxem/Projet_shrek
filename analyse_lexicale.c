@@ -15,6 +15,7 @@ Lexeme lexeme_en_cours; /* le lexeme courant */
 // Retourne un tableau contenant les caractères/entiers de l'intervalle
 // Exemple : [a-e] -> [a,b,c,d,e]
 // Exemple : [0-9] -> [0,1,2,3,4,5,6,7,8,9]
+/*
 int intervalle(char *c)
 {
 
@@ -75,6 +76,7 @@ int intervalle(char *c)
 
     return *tab;
 }
+*/
 
 /* --------------------------------------------------------------------- */
 

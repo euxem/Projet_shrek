@@ -11,48 +11,48 @@
 -- L. Mounier (version C) : aout 2016
 ------------------------------------------------------------------------ */
 
-void demarrer_car(char *nom_fichier);
 // e.i. : indifferent
 // e.f. : la sequence de caracteres est accessible dans le fichier designe
 //        par nom_fichier
 //        fin_de_sequence vaut vrai ou alors caractere_courant est le
 //        premier caractere de la sequence
+void demarrer_car(char *nom_fichier);
 
-void avancer_car();
 // pre-condition : la sequence de caracteres est accessible
 // e.i. : fin_de_sequence = faux ;
 //        on pose i = rang du caractere courant
 // e.f. : fin_de_sequence vaut vrai ou alors caractere_courant est le
 //        caractere de rang i+1 dans la sequence
+void avancer_car();
 
-char caractere_courant();
 // pre-condition : la sequence de caracteres est accessible
 // caractere_courant est le caractere de rang i
 // pre-condition : la machine sequentielle est demarree et
 // fin_de_sequence = faux
+char caractere_courant();
 
-int fin_de_sequence_car();
 // pre-condition : la sequence de caracteres est accessible
 // fin_de_sequence vaut vrai <=> tous les caracteres de la sequence
 // ont ete lus
 // pre-condition : la machine sequentielle est demarree
+int fin_de_sequence_car();
 
-unsigned int numero_ligne();
 // pre-condition : la sequence de caracteres est accessible
 // numero de la ligne ou se trouve le caractere courant
 // pre-condition : la machine sequentielle est demarree et
 // fin_de_sequence = faux
+unsigned int numero_ligne();
 
-unsigned int numero_colonne();
 // pre-condition : la sequence de caracteres est accessible
 // numero de la colonne ou se trouve le caractere courant
 // pre-condition : la machine sequentielle est demarree et
 // fin_de_sequence = faux
+unsigned int numero_colonne();
 
-void arreter_car();
 // pre-condition : la sequence de caracteres est accessible
 // e.i. : indifferent
 // e.f. : la sequence de caracteres n'est plus accessible
+void arreter_car();
 
 int est_separateur(char c);
 

@@ -193,7 +193,7 @@ float appliquer_operation(float a, char *o, float b)
     else
     {
         perror("ERREUR: Opération non reconnue.\n");
-        printf("L%dC%d: %c\n", lexeme_courant().ligne, lexeme_courant().colonne, *o);
+        afficher_lexeme(lexeme_courant());
         exit(1);
     }
 }
@@ -207,7 +207,7 @@ void appliquer_concat(char *a, char *o, char *b, char **c)
     else
     {
         perror("ERREUR: Opération non reconnue.\n");
-        printf("L%dC%d: %c\n", lexeme_courant().ligne, lexeme_courant().colonne, *o);
+        afficher_lexeme(lexeme_courant());
         exit(1);
     }
 }
@@ -229,7 +229,9 @@ float evaluer(Ast A)
         }
         return appliquer_operation(evaluer(A->gauche), A->chaine, evaluer(A->droite));
     default:
-        printf("Erreur evaluation float");
+        perror("Erreur d'évaluation d'opération.\n");
+        afficher_lexeme(lexeme_courant());
+        printf("HINT : vous avez peut-être employé un opérateur non reconnu.\n");
         exit(1);
         break;
     }

@@ -33,7 +33,10 @@ typedef struct noeud
 
 typedef NoeudAst *Ast;
 
+// Renvoie un pointeur vers un espacio mémoire alloué pour un noeud de l'arbre syntaxique
 Ast nouvelle_cellule_ast();
+
+// Libère la mémoire allouée pour l'arbre syntaxique
 void free_ast(Ast A);
 
 #endif
