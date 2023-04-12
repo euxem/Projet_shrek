@@ -4,47 +4,55 @@
 #include "analyse_syntaxique.h"
 #include "type_ast.h"
 
-void Rec_pgm(Ast *A)
+int Rec_pgm(Ast *A)
 {
-    Rec_seq_inst(A);
+    if (Rec_seq_inst(A) != 0)
+    {
+        return 1;
+    }
     if (lexeme_courant().nature != FIN)
     {
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : Deux points attendu.\n");
-        exit(1);
+        return 1;
     }
+
+    return 0;
 }
 
-void Rec_seq_inst(Ast *A)
+int Rec_seq_inst(Ast *A)
 {
+    // ret vaut 1 si une erreur est détectée
+    int ret = 0;
     Ast A1;
-    Rec_inst(&A1);
-    Rec_suite_seq_inst(A, &A1);
+    ret = Rec_inst(&A1) || ret;
+    ret = Rec_suite_seq_inst(A, &A1) || ret;
+    return ret;
 }
 
-void Rec_suite_seq_inst(Ast *A, Ast *A1)
+int Rec_suite_seq_inst(Ast *A, Ast *A1)
 {
     if (lexeme_courant().nature != P_VIRG)
     {
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : Point virgule attendu.\n");
-        exit(1);
+        return 1;
     }
     avancer();
     if (lexeme_courant().nature == FIN || lexeme_courant().nature == SINON || lexeme_courant().nature == FSI || lexeme_courant().nature == FAIT || lexeme_courant().nature == ROF)
     {
         (*A) = (*A1);
-        return;
+        return 0;
     }
     (*A) = nouvelle_cellule_ast();
     (*A)->nature = N_SEPARATEUR;
     (*A)->gauche = (*A1);
-    Rec_seq_inst(&((*A)->droite));
+    return Rec_seq_inst(&((*A)->droite));
 }
 
-void Rec_inst(Ast *A)
+int Rec_inst(Ast *A)
 {
     Ast A1;
     switch (lexeme_courant().nature)
@@ -56,7 +64,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Deux points attendu.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         Rec_suite_for(A);
@@ -72,7 +80,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Un if nécessite un then.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         Rec_seq_inst(&A1);
@@ -81,7 +89,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Un if doit continuer avec un else ou se terminer par un fi.\n");
-            exit(1);
+            return 1;
         }
         (*A)->droite = A1;
         if (lexeme_courant().nature == SINON)
@@ -93,7 +101,7 @@ void Rec_inst(Ast *A)
                 perror("Erreur syntaxique :\n");
                 afficher_lexeme(lexeme_courant());
                 printf("HINT : Un if doit se terminer par un fi.\n");
-                exit(1);
+                return 1;
             }
             (*A)->gauche = A1;
         }
@@ -114,7 +122,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Un while nécessite un do.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         Rec_seq_inst(&A1);
@@ -123,7 +131,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Un while doit se terminer par un done.\n");
-            exit(1);
+            return 1;
         }
         (*A)->droite = A1;
         avancer();
@@ -138,7 +146,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Un for attends ses arguments dans une parenthèse.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         if (lexeme_courant().nature != IDF)
@@ -147,7 +155,7 @@ void Rec_inst(Ast *A)
             afficher_lexeme(lexeme_courant());
             printf("HINT : Un for attends un identificateur en premier argument.\n");
             printf("HINT : La syntaxe du for est similaire à celle du C.\n");
-            exit(1);
+            return 1;
         }
         Rec_seq_aff(&A1);
         if (lexeme_courant().nature != P_VIRG)
@@ -156,7 +164,7 @@ void Rec_inst(Ast *A)
             afficher_lexeme(lexeme_courant());
             printf("HINT : Les arguments du for doivent être séparés par des points virgules.\n");
             printf("HINT : La syntaxe du for est similaire à celle du C.\n");
-            exit(1);
+            return 1;
         }
         (*A)->gauche = A1;
         avancer();
@@ -167,7 +175,7 @@ void Rec_inst(Ast *A)
             afficher_lexeme(lexeme_courant());
             printf("HINT : Les arguments du for doivent être séparés par des points virgules.\n");
             printf("HINT : La syntaxe du for est similaire à celle du C.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         Rec_eag(&A1);
@@ -178,7 +186,7 @@ void Rec_inst(Ast *A)
             afficher_lexeme(lexeme_courant());
             printf("HINT : Fermez la parenthèse du for.\n");
             printf("HINT : La syntaxe du for est similaire à celle du C.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         if (lexeme_courant().nature != FAIRE)
@@ -186,7 +194,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Un for nécessite un do.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         Rec_seq_inst(&A1);
@@ -195,7 +203,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Un for doit se terminer par un rof.\n");
-            exit(1);
+            return 1;
         }
         (*A)->droite = A1;
         avancer();
@@ -216,7 +224,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Deux points attendu.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         if (lexeme_courant().nature != IDF)
@@ -224,7 +232,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Identificateur attendu.\n");
-            exit(1);
+            return 1;
         }
         A1 = nouvelle_cellule_ast();
         (*A)->gauche = A1;
@@ -236,7 +244,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Deux points attendu.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         if (lexeme_courant().nature != IDF)
@@ -244,7 +252,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Identificateur attendu.\n");
-            exit(1);
+            return 1;
         }
         A1->gauche = nouvelle_cellule_ast();
         A1 = A1->gauche;
@@ -261,7 +269,7 @@ void Rec_inst(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Deux points attendu.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         Rec_suite_ecrire(A);
@@ -270,6 +278,8 @@ void Rec_inst(Ast *A)
         Rec_seq_aff(A);
         break;
     }
+
+    return 0;
 }
 
 void Rec_suite_ecrire(Ast *A)
@@ -790,8 +800,8 @@ void Rec_condition(Ast *A)
     (*A)->centre = AC;
 }
 
-void analyse(char *nom_ficher, Ast *arbre)
+int analyse(char *nom_ficher, Ast *arbre)
 {
     demarrer(nom_ficher);
-    Rec_pgm(arbre);
+    return Rec_pgm(arbre);
 }
