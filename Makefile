@@ -1,7 +1,7 @@
 CC=gcc
 CFLAG=-Wall -Werror -Wextra -Wpedantic -std=gnu99 -g
 
-all:shrek test_lexeme test_syntax test_ast clean
+all:shrek2dot clean
 
 # Links
 
@@ -36,7 +36,7 @@ shrek.o:shrek.c analyse_lexicale.h lecture_caracteres.h analyse_syntaxique.h typ
 	$(CC) $(CFLAG) -c $<
 
 # Compile
-shrek:shrek.o analyse_lexicale.o lecture_caracteres.o analyse_syntaxique.o type_ast.o table_symbole.o arbre_ast.o
+shrek2dot:shrek.o analyse_lexicale.o lecture_caracteres.o analyse_syntaxique.o type_ast.o table_symbole.o arbre_ast.o
 	$(CC) $(CFLAG) $^ -o $@
 	make clean
 
