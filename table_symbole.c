@@ -132,7 +132,7 @@ void creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
     }
 }
 
-void trouver_idf_char(char *idf, char *aff)
+int trouver_idf_char(char *idf, char *aff)
 {
     Cellule *cel;
     cel = identifier.tete;
@@ -140,12 +140,14 @@ void trouver_idf_char(char *idf, char *aff)
     {
         cel = cel->suivant;
     }
+    // Si idf n'est pas trouvé
     if (cel == NULL)
     {
-        return;
+        return 1;
     }
+    // Si idf est trouvé
     strcpy(aff, cel->aff_char);
-    return;
+    return 0;
 }
 
 void trouver_idf_float(char *idf, float *aff)
@@ -233,13 +235,16 @@ float evaluer(Ast A)
     }
 }
 
-void evaluer_char(Ast A, char **c)
+int evaluer_char(Ast A, char **c)
 {
     char c1[256];
     Ast B = A->droite;
     if (A->nature == N_STR && A->valeur == 0)
     {
-        trouver_idf_char(A->chaine, c1);
+        if (trouver_idf_char(A->chaine, c1) != 0)
+        {
+            return 1;
+        }
     }
     else
     {
@@ -251,10 +256,13 @@ void evaluer_char(Ast A, char **c)
     }
     else
     {
-        evaluer_char(B->droite, c);
+        if (evaluer_char(B->droite, c) != 0)
+        {
+            return 1;
+        }
         appliquer_concat(c1, B->chaine, *c, c);
     }
-    return;
+    return 0;
 }
 
 void free_chainee()

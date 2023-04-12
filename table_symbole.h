@@ -23,11 +23,11 @@ struct lis
 typedef struct lis Liste;
 
 void creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val);
-void trouver_idf_char(char *idf, char *aff);
+int trouver_idf_char(char *idf, char *aff);
 void trouver_idf_float(char *idf, float *aff);
 float appliquer_operation(float a, char *o, float b);
 float evaluer(Ast A);
-void evaluer_char(Ast A, char **c);
+int evaluer_char(Ast A, char **c);
 void free_chainee();
 
 #endif
