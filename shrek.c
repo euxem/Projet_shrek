@@ -105,7 +105,7 @@ int main(int argc, char **argv)
         }
 
         // Crée le dossier .dot en sous dossier
-        char *dotpath = malloc(strlen(fpath) + 5);
+        char *dotpath = malloc(strlen(fpath) + 15);
         strcpy(dotpath, fpath);
         strcat(dotpath, "/generated_dot");
         struct stat st = {0};
@@ -143,6 +143,8 @@ int main(int argc, char **argv)
                 }
             }
         }
+        free(dotpath);
+        closedir(d);
     }
     else
     {
