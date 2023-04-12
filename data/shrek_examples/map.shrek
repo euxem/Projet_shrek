@@ -1,0 +1,2 @@
+map:node [a,b,c] 'i,j,k';
+map:link [a,b,c] [b,c,a] {1,2,3} ~red,blue,green~;

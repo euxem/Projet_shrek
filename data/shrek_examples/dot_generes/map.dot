@@ -1,0 +1,5 @@
+graph G {
+	i -- j [label="1", weight=1, color=red];
+	j -- k [label="2", weight=2, color=blue];
+	k -- i [label="3", weight=3, color=green~];
+}
