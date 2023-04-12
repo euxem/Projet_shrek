@@ -7,6 +7,9 @@
 int SUB = 0;
 int nb_sub = 0;
 
+
+// Fonction de traduction d'arbre en fichier .dot
+// Renvoie 1 si un subgraph est ouvert, 0 sinon
 int interpreter(Ast A, FILE *f)
 {
     char* temp_char;
@@ -94,14 +97,16 @@ int interpreter(Ast A, FILE *f)
         break;
     case N_CLOSUB:
         if (!SUB){
-            printf("ERROR: Subgraph non créer");
+            perror("Erreur AST : Subgraph non créé");
             exit(0);
         }
         SUB=0;
         fprintf(f,"\t}\n");
         break;
     default:
-        printf("erreur:ast\n");
+        perror("Erreur AST : noeud inconnu\n");
+        printf("Nature : %d\n", A->nature);
+        printf("Chaine : %s\n", A->chaine);
         break;
     }
 
@@ -123,7 +128,7 @@ void interpreter_subtitle(FILE *f, Ast A)
     }
     else
     {
-        printf("Erreur title\n");
+        perror("Erreur AST : titre subgraph de mauvais type\n");
     }
 }
 
@@ -133,7 +138,8 @@ void interpreter_link(FILE *f, Ast A)
     float flot;
     if (A == NULL || A->nature != N_STR)
     {
-        printf("erreur\n");
+        perror("Erreur AST : noeud de mauvais type\n");
+        printf("Link a besoin d'une chaine\n");
     }
     if (SUB){
         fprintf(f,"\t");
@@ -143,7 +149,8 @@ void interpreter_link(FILE *f, Ast A)
     A = A->gauche;
     if (A == NULL || A->nature != N_STR)
     {
-        printf("erreur\n");
+        perror("Erreur AST : noeud de mauvais type\n");
+        printf("Link a besoin d'une chaine\n");
     }
     trouver_idf_char(A->chaine, aff);
     fprintf(f, " %s", aff);
@@ -177,13 +184,15 @@ void interpreter_forlink(FILE *f, Ast A)
     int temp_1 = 1, temp_2 = 1, temp_weight = 1, temp_col = 1;
     if (A == NULL || A->nature != N_STR)
     {
-        printf("erreur\n");
+        perror("Erreur AST : noeud de mauvais type\n");
+        printf("Forlink a besoin d'une chaine\n");
     }
     strcpy(liste1, A->chaine);
     A = A->gauche;
     if (A == NULL || A->nature != N_STR)
     {
-        printf("erreur\n");
+        perror("Erreur AST : noeud de mauvais type\n");
+        printf("Forlink a besoin d'une chaine\n");
     }
     strcpy(liste2, A->chaine);
     A = A->gauche;
@@ -321,7 +330,7 @@ void interpreter_forlink(FILE *f, Ast A)
         break;
 
     default:
-        printf("ERREUR: Interprétation forlink");
+        perror("Erreur AST : Interprétation forlink\n");
         break;
     }
 }
@@ -358,6 +367,6 @@ int condition(Ast A){
     if (strcmp(A->chaine,">")==0){
         return a>b;
     }
-    printf("Erreur Bool");
+    perror("Erreur AST : mauvaise interprétation de booléen\n");
     exit(1);
 }
