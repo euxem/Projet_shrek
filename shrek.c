@@ -33,7 +33,9 @@ int traduire_fichier(char *ipath, char *opath)
         fprintf(f, "\t}\n");
     }
     fprintf(f, "}\n");
-    printf("fichier .dot de sortie : %s\n", opath);
+
+    printf("\x1b[1;32mSuccès de la traduction : \x1b[0m");
+    printf("fichier %s généré.\n", opath);
 
     free_ast(A);
     free_chainee();
@@ -76,7 +78,7 @@ int main(int argc, char **argv)
             printf("Usage: %s [-f input folder] [-h]\n", argv[0]);
             printf("Si aucun fichier d'entrée n'est spécifié, l'entrée standard est utilisée.\n");
             printf("Si aucun fichier de sortie n'est spécifié, le fichier 'output.dot' est utilisé.\n");
-            printf("Si un dossier est spécifié, tous les fichiers .shrek seront traduits.\n");
+            printf("Si un dossier est spécifié, tous les fichiers .shrek du dossier seront traduits.\n");
             printf("Le fichiers .dot seront créés dans un sous dossier /generated_dot.\n");
             return 0;
         case '?':
