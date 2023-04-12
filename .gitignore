@@ -4,3 +4,4 @@ test_syntax
 test_ast
 output.dot
 .vscode
+*.o

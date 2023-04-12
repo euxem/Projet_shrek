@@ -67,14 +67,20 @@ int Rec_inst(Ast *A)
             return 1;
         }
         avancer();
-        Rec_suite_for(A);
+        if (Rec_suite_for(A) != 0)
+        {
+            return 1;
+        }
         break;
 
     case SI:
         (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_SI;
         avancer();
-        Rec_condition(A);
+        if (Rec_condition(A) != 0)
+        {
+            return 1;
+        }
         if (lexeme_courant().nature != ALORS)
         {
             perror("Erreur syntaxique :\n");
@@ -116,7 +122,10 @@ int Rec_inst(Ast *A)
         (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_TANT_QUE;
         avancer();
-        Rec_condition(A);
+        if (Rec_condition(A) != 0)
+        {
+            return 1;
+        }
         if (lexeme_courant().nature != FAIRE)
         {
             perror("Erreur syntaxique :\n");
@@ -157,7 +166,10 @@ int Rec_inst(Ast *A)
             printf("HINT : La syntaxe du for est similaire à celle du C.\n");
             return 1;
         }
-        Rec_seq_aff(&A1);
+        if (Rec_seq_aff(&A1) != 0)
+        {
+            return 1;
+        }
         if (lexeme_courant().nature != P_VIRG)
         {
             perror("Erreur syntaxique :\n");
@@ -168,7 +180,10 @@ int Rec_inst(Ast *A)
         }
         (*A)->gauche = A1;
         avancer();
-        Rec_condition(A);
+        if (Rec_condition(A) != 0)
+        {
+            return 1;
+        }
         if (lexeme_courant().nature != P_VIRG)
         {
             perror("Erreur syntaxique :\n");
@@ -272,17 +287,23 @@ int Rec_inst(Ast *A)
             return 1;
         }
         avancer();
-        Rec_suite_ecrire(A);
+        if (Rec_suite_ecrire(A) != 0)
+        {
+            return 1;
+        }
         break;
     default:
-        Rec_seq_aff(A);
+        if (Rec_seq_aff(A) != 0)
+        {
+            return 1;
+        }
         break;
     }
 
     return 0;
 }
 
-void Rec_suite_ecrire(Ast *A)
+int Rec_suite_ecrire(Ast *A)
 {
     Ast A1;
     switch (lexeme_courant().nature)
@@ -296,7 +317,7 @@ void Rec_suite_ecrire(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Identificateur attendu.\n");
-            exit(1);
+            return 1;
         }
         A1 = nouvelle_cellule_ast();
         (*A)->gauche = A1;
@@ -316,9 +337,10 @@ void Rec_suite_ecrire(Ast *A)
     default:
         break;
     }
+    return 0;
 }
 
-void Rec_seq_aff(Ast *A)
+int Rec_seq_aff(Ast *A)
 {
     Ast A1;
     switch (lexeme_courant().nature)
@@ -327,7 +349,10 @@ void Rec_seq_aff(Ast *A)
         (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_NODE;
         avancer();
-        Rec_suite_node(A);
+        if (Rec_suite_node(A) != 0)
+        {
+            return 1;
+        }
         break;
 
     case SUBGRAPH:
@@ -339,7 +364,7 @@ void Rec_seq_aff(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Affectation attendue.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         if (lexeme_courant().nature != STRING)
@@ -347,7 +372,7 @@ void Rec_seq_aff(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Nom du subgraph manquant.\n");
-            exit(1);
+            return 1;
         }
         A1 = nouvelle_cellule_ast();
         A1->nature = N_STR;
@@ -363,7 +388,7 @@ void Rec_seq_aff(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Deux points attendu.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         switch (lexeme_courant().nature)
@@ -377,7 +402,7 @@ void Rec_seq_aff(Ast *A)
                 perror("Erreur syntaxique :\n");
                 afficher_lexeme(lexeme_courant());
                 printf("HINT : Identificateur attendu.\n");
-                exit(1);
+                return 1;
             }
             A1 = nouvelle_cellule_ast();
             (*A)->gauche = A1;
@@ -398,8 +423,7 @@ void Rec_seq_aff(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Node ou identificateur attendu après instruction read.\n");
-            exit(1);
-            break;
+            return 1;
         }
 
         break;
@@ -417,7 +441,7 @@ void Rec_seq_aff(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Affectation attendue.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         Rec_eag(&A1);
@@ -426,9 +450,9 @@ void Rec_seq_aff(Ast *A)
     default:
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
-        exit(1);
-        break;
+        return 1;
     }
+    return 0;
 }
 
 void Rec_eag(Ast *A)
@@ -552,7 +576,7 @@ void Rec_suite_seq_terme(Ast *A)
     }
 }
 
-void Rec_suite_node(Ast *A)
+int Rec_suite_node(Ast *A)
 {
     Ast A1;
     if (lexeme_courant().nature != DEUX_POINT)
@@ -560,7 +584,7 @@ void Rec_suite_node(Ast *A)
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : Deux point attendu.\n");
-        exit(1);
+        return 1;
     }
     avancer();
     if (lexeme_courant().nature != IDF)
@@ -568,7 +592,7 @@ void Rec_suite_node(Ast *A)
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : Identificateur attendu.\n");
-        exit(1);
+        return 1;
     }
     A1 = nouvelle_cellule_ast();
     A1->nature = N_STR;
@@ -580,7 +604,7 @@ void Rec_suite_node(Ast *A)
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : Affectation attendue.\n");
-        exit(1);
+        return 1;
     }
     avancer();
     if (lexeme_courant().nature != STRING && lexeme_courant().nature != IDF && lexeme_courant().nature != FLOAT)
@@ -588,7 +612,7 @@ void Rec_suite_node(Ast *A)
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : L'instruction node attend une chaine de caractere, un identificateur ou un nombre.\n");
-        exit(1);
+        return 1;
     }
     A1 = nouvelle_cellule_ast();
     A1->nature = N_STR;
@@ -600,14 +624,16 @@ void Rec_suite_node(Ast *A)
     (*A)->droite = A1;
     avancer();
     Rec_suite_concat(&A1);
+
+    return 0;
 }
 
-void Rec_suite_concat(Ast *A)
+int Rec_suite_concat(Ast *A)
 {
     Ast A1;
     if (lexeme_courant().nature != CONCAT)
     {
-        return;
+        return 0;
     }
     A1 = nouvelle_cellule_ast();
     (*A)->droite = A1;
@@ -619,7 +645,7 @@ void Rec_suite_concat(Ast *A)
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : L'instruction concat attend une chaine de caractere, un identificateur ou un nombre.\n");
-        exit(1);
+        return 1;
     }
     A1->droite = nouvelle_cellule_ast();
     A1 = A1->droite;
@@ -631,9 +657,11 @@ void Rec_suite_concat(Ast *A)
     strcpy(A1->chaine, lexeme_courant().chaine);
     avancer();
     Rec_suite_concat(&A1);
+
+    return 0;
 }
 
-void Rec_suite_for(Ast *A)
+int Rec_suite_for(Ast *A)
 {
     Ast A1;
     int a, b, c, d;
@@ -648,7 +676,7 @@ void Rec_suite_for(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Liste de noeuds attendue.\n");
-            exit(1);
+            return 1;
         }
         A1 = nouvelle_cellule_ast();
         A1->nature = N_STR;
@@ -661,7 +689,7 @@ void Rec_suite_for(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Liste de chaine de caractères attendue.\n");
-            exit(1);
+            return 1;
         }
         A1 = nouvelle_cellule_ast();
         A1->nature = N_STR;
@@ -674,7 +702,7 @@ void Rec_suite_for(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Les listes de noeuds et de chaines de caractères doivent être de même taille.\n");
-            exit(1);
+            return 1;
         }
         break;
 
@@ -687,7 +715,7 @@ void Rec_suite_for(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Liste de noeuds attendue.\n");
-            exit(1);
+            return 1;
         }
         A1 = nouvelle_cellule_ast();
         (*A)->gauche = A1;
@@ -700,7 +728,7 @@ void Rec_suite_for(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Liste de noeuds attendue.\n");
-            exit(1);
+            return 1;
         }
         A1->gauche = nouvelle_cellule_ast();
         A1 = A1->gauche;
@@ -712,12 +740,12 @@ void Rec_suite_for(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Les listes de noeuds doivent être de même taille.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         if (lexeme_courant().nature != L_FLOAT)
         {
-            return;
+            return 0;
         }
         A1->gauche = nouvelle_cellule_ast();
         A1 = A1->gauche;
@@ -729,12 +757,12 @@ void Rec_suite_for(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Les listes de noeuds et de flottants doivent être de même taille.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         if (lexeme_courant().nature != L_COLOR)
         {
-            return;
+            return 0;
         }
         A1->gauche = nouvelle_cellule_ast();
         A1 = A1->gauche;
@@ -747,16 +775,18 @@ void Rec_suite_for(Ast *A)
             perror("Erreur syntaxique :\n");
             afficher_lexeme(lexeme_courant());
             printf("HINT : Les listes de noeuds et de couleurs doivent être de même taille.\n");
-            exit(1);
+            return 1;
         }
         avancer();
         break;
     default:
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
-        exit(1);
+        return 1;
         break;
     }
+
+    return 0;
 }
 
 void Rec_suite_link(Ast *A)
@@ -779,7 +809,7 @@ void Rec_suite_link(Ast *A)
     avancer();
 }
 
-void Rec_condition(Ast *A)
+int Rec_condition(Ast *A)
 {
     Ast A1, AC;
     Rec_eag(&A1);
@@ -788,7 +818,7 @@ void Rec_condition(Ast *A)
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : Opérateur booléen attendu après un if.\n");
-        exit(1);
+        return 1;
     }
     AC = nouvelle_cellule_ast();
     AC->gauche = A1;
@@ -798,6 +828,8 @@ void Rec_condition(Ast *A)
     Rec_eag(&A1);
     AC->droite = A1;
     (*A)->centre = AC;
+
+    return 0;
 }
 
 int analyse(char *nom_ficher, Ast *arbre)

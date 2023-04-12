@@ -21,8 +21,8 @@ int traduire_fichier(char *ipath, char *opath)
 
     if (analyse(ipath, &A) != 0)
     {
-        printf("\x1b[31mWARNING : \x1b[0m");
-        printf("Erreur d'analyse du fichier %s\n", ipath);
+        printf("\x1b[1;33mWARNING : \x1b[0m");
+        printf("Erreur d'analyse du fichier %s\n\n", ipath);
         return 1;
     }
 
@@ -44,8 +44,9 @@ int traduire_fichier(char *ipath, char *opath)
 
 int main(int argc, char **argv)
 {
-    // Compteur d'erreurs
+    // Compteur d'erreurs et de fichiers traités
     int err = 0;
+    int nb_files = 0;
 
     // Valeurs par défaut des arguments
     char *ipath = NULL;
@@ -93,7 +94,7 @@ int main(int argc, char **argv)
         if (d == NULL)
         {
             perror("Erreur d'ouverture du dossier\n");
-            printf("%s\n", fpath);
+            printf("%s/%s\n", argv[0], fpath);
             printf("HINT : vérifiez que le chemin est correct et que vous avez les droits.\n");
             return 1;
         }
@@ -124,6 +125,9 @@ int main(int argc, char **argv)
                 char *ext = strrchr(dir->d_name, '.');
                 if (ext && strcmp(ext, ".shrek") == 0)
                 {
+                    // On compte le fichier traité
+                    nb_files++;
+
                     ipath = (char *)malloc((strlen(dir->d_name) + strlen(fpath) + 2) * sizeof(char));
                     strcpy(ipath, fpath);
                     strcat(ipath, "/");
@@ -136,7 +140,13 @@ int main(int argc, char **argv)
                     strncat(opath, dir->d_name, strlen(dir->d_name) - 6);
                     strcat(opath, ".dot");
 
-                    err += traduire_fichier(ipath, opath);
+                    if (traduire_fichier(ipath, opath) != 0)
+                    {
+                        // Si une erreur est rencontrée, on incrémente le compteur d'erreurs
+                        err++;
+                        // Et on supprime le fichier .dot
+                        remove(opath);
+                    }
                     // Free
                     free(ipath);
                     free(opath);
@@ -148,7 +158,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        // Si aucun fichier n'est spécifié, on utilise l'entrée standard
+        // Si aucun fichier d'entrée n'est spécifié, on utilise l'entrée standard
         if (ipath == NULL)
         {
             ipath = malloc(1);
@@ -166,9 +176,11 @@ int main(int argc, char **argv)
     if (err)
     {
         char *err_msg = malloc(30);
-        sprintf(err_msg, "%d erreur(s) rencontrée(s)", err);
+        printf("---------------\n");
+        sprintf(err_msg, "%d/%d fichier(s) ont généré des erreurs.\n", err, nb_files);
         perror(err_msg);
-        return 1;
+        printf("Un fichier .dot n'a pas été généré pour ces fichiers.\n");
+        return err;
     }
 
     return 0;
