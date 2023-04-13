@@ -173,8 +173,8 @@ int main(int argc, char **argv)
             strcpy(opath, "output.dot");
         }
         traduire_fichier(ipath, opath);
-							free(ipath);
-							free(opath);
+        free(ipath);
+        free(opath);
     }
 
     if (err)
