@@ -28,7 +28,7 @@ Les instructions disponibles sont les suivantes :
 * `node:var = nom;` : Crée un noeud de label `nom` et l'assigne à la variable `var`.
 * `link:a:b p c;` : Crée un lien entre les noeuds `a` et `b` de poids `p` et de couleur `c`. p et c sont optionnels.
 * `for (var = 0; var < 10; var = var + 1) ... rof;` : Boucle for classique. Doit être fermée par `rof;`. Les instructions de la boucle doivent être sur de nouvelles lignes.
-* `while x <= 10 ... done;` : Boucle while classique. Doit être fermée par `done;`. Les instructions de la boucle doivent être sur de nouvelles lignes.
+* `while x <= 10 do ... done;` : Boucle while classique. Doit être fermée par `done;`. Les instructions de la boucle doivent être sur de nouvelles lignes.
 * `var = 10;` : Affectation d'une valeur à une variable. L'affectation peut être un calcul mathématique (+, -, *, /, %).
 * `a | "str" | b;` : Renvoie une chaine de caractère composée du nom du node a, de "str" et du nom du node b concaténés. Peut être utilisé pour nommer des noeuds : `node:b = a | "bis";`.
 * `read:var;` : Lit une valeur au clavier et l'affecte à la variable `var`.
