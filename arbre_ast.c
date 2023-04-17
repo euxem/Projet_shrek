@@ -338,7 +338,7 @@ void interpreter_forlink(FILE *f, Ast A)
                 b = true;
                 for (int j = temp_col; b == true; j++)
                 {
-                    if (liste_col[j] == ',' || liste_col[j] == ')')
+                    if (liste_col[j] == ',' || liste_col[j] == '~')
                     {
                         liste_col[j] = '\0';
                         fprintf(f, " color=%s];\n", &(liste_col[temp_col]));

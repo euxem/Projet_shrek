@@ -11,75 +11,6 @@ Lexeme lexeme_en_cours; /* le lexeme courant */
 
 /* --------------------------------------------------------------------- */
 
-// Reconnait un intervalle ou une énumération de caractères et d'entiers
-// Retourne un tableau contenant les caractères/entiers de l'intervalle
-// Exemple : [a-e] -> [a,b,c,d,e]
-// Exemple : [0-9] -> [0,1,2,3,4,5,6,7,8,9]
-/*
-int intervalle(char *c)
-{
-
-    // pointeur de lecture
-    char *ptr = c;
-
-    // termes de l'intervalle
-    char terme1, terme2;
-
-    // tableau étendu de l'intervalle
-    int *tab = malloc(TAILLE_INTER_MAX * sizeof(int));
-
-    if (*ptr != '[')
-    {
-        perror("Erreur d'intervalle :\n");
-        afficher_lexeme(lexeme_en_cours);
-        printf("HINT : un intervalle doit commencer par '['");
-        exit(1);
-    }
-
-    // on lit le premier terme de l'intervalle
-    terme1 = *(++ptr);
-    if (*(++ptr) != '-')
-    {
-        perror("Erreur d'intervalle :\n");
-        afficher_lexeme(lexeme_en_cours);
-        printf("HINT : un intervalle doit contenir '-'");
-        exit(1);
-    }
-
-    // on lit le second terme de l'intervalle
-    terme2 = *(++ptr);
-    if (*(++ptr) != ']')
-    {
-        perror("Erreur d'intervalle :\n");
-        afficher_lexeme(lexeme_en_cours);
-        printf("HINT : un intervalle doit se terminer par ']'");
-        exit(1);
-    }    
-
-    // on vérifie que l'intervalle est bien formé
-    if (terme1 > terme2)
-    {
-        perror("Erreur d'intervalle :\n");
-        afficher_lexeme(lexeme_en_cours);
-        printf("HINT : le premier terme de l'intervalle doit être inférieur au second");
-        exit(1);
-    }
-
-    // on remplit le tableau avec les caractères de l'intervalle
-    int i = 0;
-    for (char c = terme1; c <= terme2; c++)
-    {
-        tab[i++] = c;
-        tab[i++] = ','; // on ajoute une virgule entre chaque caractère
-    }
-    tab[i - 1] = '\0'; // on remplace la dernière virgule par un caractère de fin de chaine
-
-    return *tab;
-}
-*/
-
-/* --------------------------------------------------------------------- */
-
 void demarrer(char *nom_fichier)
 {
     demarrer_car(nom_fichier);
@@ -211,6 +142,7 @@ void reconnaitre_lexeme()
                     lexeme_en_cours.taille++;
                 }
                 ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+                printf("%s\n",lexeme_en_cours.chaine);
                 etat = E_FIN;
                 avancer_car();
                 break;
@@ -682,7 +614,7 @@ void afficher_lexeme(Lexeme lex)
 }
 
 int est_caractère_lexeme_suivant(char c){
-    return (c==':' || c==';' || c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='+' || c=='-' || c=='*' || c=='/' || c=='%' || c=='"' || c=='|');
+    return (c==':' || c==';' || c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='+' || c=='-' || c=='*' || c=='/' || c=='%' || c=='"' || c=='|' || c=='~');
 }
 
 void perror(const char *s)
