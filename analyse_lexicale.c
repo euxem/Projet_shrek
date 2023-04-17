@@ -142,7 +142,6 @@ void reconnaitre_lexeme()
                     lexeme_en_cours.taille++;
                 }
                 ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-                printf("%s\n",lexeme_en_cours.chaine);
                 etat = E_FIN;
                 avancer_car();
                 break;
