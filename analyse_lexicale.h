@@ -1,35 +1,38 @@
 #ifndef __ANALYSE_LEX_H__
 #define __ANALYSE_LEX_H__
 
-#define TAILLE_INTER_MAX 100
+/*---------------------------------------------------------------*/
+#define DEBUG 0 // DEBUG Variable -> permet d'avoir un affichage des lexemes lu.
 
-#define DEBUG 0
-
+/*---------------------------------------------------------------*/
+// Enumerate Type -> pour analyser le premier caractère.
 typedef enum
 {
-   C_CHIFFRE,
-   C_INTER,
-   C_PARENT,
-   C_CROCH,
-   C_STR,
-   C_LETTRE,
-   C_FIN,
-   C_AFF,
-   C_GUI,
-   C_DESC,
-   C_OP,
-   C_VAGUE,
-   C_ERREUR,
-   C_OPBOOL,
-   C_CONCAT,
-   C_EOF
+   C_CHIFFRE, // le caractère est 0,1,...,9
+   C_INTER,   // le caractère est [
+   C_PARENT,  // le caractère est (
+   C_CROCH,   // le caractère est {
+   C_STR,     // le caractère est '
+   C_FIN,     // le caractère est ;
+   C_AFF,     // le caractère est =
+   C_GUI,     // le caractère est "
+   C_DESC,    // le caractère est :
+   C_OP,      // le caractère est + ou - ou / ou *
+   C_VAGUE,   // le caractère est ~
+   C_ERREUR,  // Si le caractère est inconnue
+   C_OPBOOL,  // le caractère est < ou >
+   C_CONCAT,  // le caractère est |
+   C_EOF,     // le caractère est EOF
+   C_LETTRE   // le caractère est une lettre (a-z ou A-Z)
 } Nature_Caractere;
 
+/*---------------------------------------------------------------*/
+// Enumerate Type -> Définie la nature du lexeme
 typedef enum
 {
-   NODE,
-   LINK,
-   SUBGRAPH,
+   NODE,       // La nature du lexeme est le mot clé node
+   LINK,       // La nature du lexeme est le mot clé link
+   SUBGRAPH,   // La nature du lexeme est le mot clé sub
    MAP,
    FOR,
    ROF,

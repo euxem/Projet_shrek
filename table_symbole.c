@@ -12,7 +12,7 @@ Cellule *nouvelle_cellule_idf()
     return (Cellule *)malloc(sizeof(Cellule));
 }
 
-void creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
+int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
 {
     Cellule *cel;
     int i, j, taille;
@@ -28,11 +28,11 @@ void creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
             {
                 if (cel->nature != nature)
                 {
-                    printf("Erreur de type\n");
-                    exit(2);
+                    perror("ERREUR: Type non reconnu, type attendu : STRING\n");
+                    return 1;
                 }
                 strcpy(cel->aff_char, chaine);
-                return;
+                return 0;
             }
             cel = cel->suivant;
         }
@@ -51,13 +51,13 @@ void creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
             {
                 if (cel->nature != nature)
                 {
-                    printf("Erreur de type %d\n", cel->nature);
-                    exit(2);
+                    perror("ERREUR: Type non reconnu, type attendu : FLOAT\n");
+                    return 1;
                 }
                 cel->aff_float = val;
                 sprintf(chaine, "%g", val);
                 strcpy(cel->aff_char, chaine);
-                return;
+                return 0;
             }
             cel = cel->suivant;
         }
@@ -88,8 +88,8 @@ void creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
                     {
                         if (cel->nature != nature)
                         {
-                            printf("Erreur de type\n");
-                            exit(2);
+                            perror("ERREUR: Type non reconnu, type attendu : LIST DE STRING\n");
+                            return 1;
                         }
                         for (j = strlen(chaine); b == true; j--)
                         {
@@ -126,10 +126,10 @@ void creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
         }
         break;
     default:
-        printf("erreur dans la table symbolique\n");
-        exit(2);
-        break;
+        perror("ERREUR: Nature incorrecte dans la table symbolique.\n");
+        return 1;
     }
+    return 0;
 }
 
 int trouver_idf_char(char *idf, char *aff)
@@ -150,7 +150,7 @@ int trouver_idf_char(char *idf, char *aff)
     return 0;
 }
 
-void trouver_idf_float(char *idf, float *aff)
+int trouver_idf_float(char *idf, float *aff)
 {
     Cellule *cel;
     cel = identifier.tete;
@@ -160,79 +160,90 @@ void trouver_idf_float(char *idf, float *aff)
     }
     if (cel == NULL)
     {
-        return;
+        return 1;
     }
     *aff = cel->aff_float;
-    return;
+    return 0;
 }
 
-float appliquer_operation(float a, char *o, float b)
+int appliquer_operation(float *a, char *o, float *b)
 {
     if (*o == '+')
     {
-        return a + b;
+        *a = *a + *b;
     }
     else if (*o == '-')
     {
-        return a - b;
+        *a = *a - *b;
     }
     else if (*o == '%')
     {
-        int a1 = (int)a;
-        int b1 = (int)b;
-        return a1 % b1;
+        int a1 = (int)*a;
+        int b1 = (int)*b;
+        *a = a1 % b1;
     }
     else if (*o == '*')
     {
-        return a * b;
+        *a = *a * *b;
     }
     else if (*o == '/')
     {
-        return a / b;
+        *a = *a / *b;
     }
     else
     {
         perror("ERREUR: Opération non reconnue.\n");
         afficher_lexeme(lexeme_courant());
-        exit(1);
+        return 1;
     }
+    return 0;
 }
 
-void appliquer_concat(char *a, char *o, char *b, char **c)
+int appliquer_concat(char *a, char *o, char *b, char **c)
 {
     if (*o == '|')
     {
         strcpy(*c, strcat(a, b));
+        return 0;
     }
     else
     {
         perror("ERREUR: Opération non reconnue.\n");
         afficher_lexeme(lexeme_courant());
-        exit(1);
+        return 1;
     }
 }
 
-float evaluer(Ast A)
+int evaluer(Ast A, float* f)
 {
-    float f;
+    int erreur;
+    float f_temp;
     switch (A->nature)
     {
     case N_STR:
-        trouver_idf_float(A->chaine, &f);
-        return f * (A->valeur);
+        erreur = trouver_idf_float(A->chaine, f);
+        *f = (*f) * (A->valeur);
+        return erreur;
     case N_FLOAT:
-        return A->valeur;
+        *f = A->valeur;
+        return 0;
     case N_OP:
+        erreur = evaluer(A->gauche,f) || evaluer(A->droite,&f_temp);
+        if (erreur){
+            return erreur;
+        }
         if (A->valeur != 0)
         {
-            return appliquer_operation(evaluer(A->gauche), A->chaine, evaluer(A->droite)) * (A->valeur);
+            erreur = erreur || appliquer_operation(f, A->chaine,&f_temp);
+            *f = *f * (A->valeur);
+            return erreur;
         }
-        return appliquer_operation(evaluer(A->gauche), A->chaine, evaluer(A->droite));
+        return erreur || appliquer_operation(f, A->chaine,&f_temp);
     default:
         perror("Erreur d'évaluation d'opération.\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : vous avez peut-être employé un opérateur non reconnu.\n");
-        exit(1);
+        return 1;
         break;
     }
 }
@@ -243,7 +254,7 @@ int evaluer_char(Ast A, char **c)
     Ast B = A->droite;
     if (A->nature == N_STR && A->valeur == 0)
     {
-        if (trouver_idf_char(A->chaine, c1) != 0)
+        if (trouver_idf_char(A->chaine, c1))
         {
             return 1;
         }
@@ -262,7 +273,7 @@ int evaluer_char(Ast A, char **c)
         {
             return 1;
         }
-        appliquer_concat(c1, B->chaine, *c, c);
+        return appliquer_concat(c1, B->chaine, *c, c);
     }
     return 0;
 }

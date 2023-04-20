@@ -4,54 +4,72 @@
 #include <stdlib.h>
 #include "arbre_ast.h"
 
-int SUB = 0;
-int nb_sub = 0;
+void print_tab_in_subgraph(FILE* f, int *nb_clause, int *nb_sub){
+    for (int i = (*nb_sub)-(*nb_clause); i>0; i--){
+        fprintf(f, "\t");
+    }
+}
 
 // Fonction de traduction d'arbre en fichier .dot
 // Renvoie 1 si un subgraph est ouvert, 0 sinon
-int interpreter(Ast A, FILE *f)
+int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
 {
     char *temp_char;
+    int erreur=0;
+    float flot=0.0;
+    int res_cond_temp;
     if (A == NULL)
     {
-        return SUB;
+        return 0;
     }
     switch (A->nature)
     {
     case N_SEPARATEUR:
-        interpreter(A->gauche, f);
-        interpreter(A->droite, f);
-        break;
+        erreur = interpreter(A->gauche, f, nb_clause, nb_sub) || interpreter(A->droite, f, nb_clause, nb_sub);
+        return erreur;
     case N_SI:
-        if (condition(A->centre))
+        switch (condition(A->centre))
         {
-            interpreter(A->droite, f);
+        case 0:
+            erreur = interpreter(A->droite, f, nb_clause, nb_sub);
+            return erreur;
+        case -1:
+            erreur = interpreter(A->gauche, f, nb_clause, nb_sub);
+            return erreur;
+        default:
+            return 1;
         }
-        else
-        {
-            interpreter(A->gauche, f);
-        }
-        break;
     case N_TANT_QUE:
-        while (condition(A->centre))
+        res_cond_temp = condition(A->centre); 
+        while (res_cond_temp == 0 && !erreur)
         {
-            interpreter(A->droite, f);
+            erreur = erreur || interpreter(A->droite, f, nb_clause, nb_sub);
+            res_cond_temp = condition(A->centre);
         }
-        break;
+        if (res_cond_temp == 1){
+            return 1;
+        }
+        return erreur;
     case N_FOR:
-        interpreter(A->gauche, f);
-        while (condition(A->centre))
+        erreur = interpreter(A->gauche, f, nb_clause, nb_sub);
+        res_cond_temp = condition(A->centre); 
+        while (res_cond_temp == 0 && !erreur)
         {
-            interpreter(A->droite, f);
+            erreur = erreur || interpreter(A->droite, f, nb_clause, nb_sub);
             temp_char = malloc(sizeof(char) * (256));
-            creer_idf(FLOAT, A->gauche->gauche->chaine, temp_char, evaluer(A->gauche->centre));
+            erreur = erreur || evaluer(A->gauche->centre,&flot);
+            erreur = erreur || creer_idf(FLOAT, A->gauche->gauche->chaine, temp_char, flot);
             free(temp_char);
+            res_cond_temp = condition(A->centre);
         }
-        break;
+        if (res_cond_temp == 1){
+            return 1;
+        }
+        return erreur;
 
     case N_SUB:
-        interpreter_subtitle(f, A->gauche);
-        break;
+        erreur = interpreter_subtitle(f, A->gauche, nb_clause, nb_sub);
+        return erreur;
     case N_NODE:
         temp_char = malloc(sizeof(char) * (256));
         if (evaluer_char(A->droite, &temp_char) != 0)
@@ -59,29 +77,29 @@ int interpreter(Ast A, FILE *f)
             perror("Erreur AST : identificateur non défini");
             return 1;
         }
-        creer_idf(STRING, A->gauche->chaine, temp_char, 0);
+        erreur = creer_idf(STRING, A->gauche->chaine, temp_char, 0);
         free(temp_char);
-        break;
+        return erreur;
     case N_LIRENODE:
         temp_char = malloc(sizeof(char) * (256));
         printf("Veuillez rentrer un nom de noeuds pour %s : ", A->gauche->chaine);
         fgets(temp_char, 256, stdin);
-        creer_idf(STRING, A->gauche->chaine, temp_char, 0);
+        erreur = creer_idf(STRING, A->gauche->chaine, temp_char, 0);
         free(temp_char);
-        break;
+        return erreur;
     case N_LIREFLOAT:
         temp_char = malloc(sizeof(char) * (256));
-        float flot = 0.0;
         printf("Veuillez rentrer un nombre pour %s : ", A->gauche->chaine);
         fgets(temp_char, 256, stdin);
         temp_char[strlen(temp_char) - 1] = '\0';
         flot = atof(temp_char);
-        creer_idf(FLOAT, A->gauche->chaine, temp_char, flot);
+        erreur = creer_idf(FLOAT, A->gauche->chaine, temp_char, flot);
         free(temp_char);
-        break;
+        return erreur;
     case N_ECRIREFLOAT:
-        ecrire_float(evaluer(A->gauche));
-        break;
+        erreur = evaluer(A->gauche, &flot);
+        ecrire_float(flot);
+        return erreur;
     case N_ECRIRENODE:
         temp_char = malloc(sizeof(char) * (256));
         if (evaluer_char(A->gauche, &temp_char) != 0)
@@ -91,100 +109,102 @@ int interpreter(Ast A, FILE *f)
         }
         ecrire_char(temp_char);
         free(temp_char);
-        break;
+        return 0;
     case N_AFFINT:
         temp_char = malloc(sizeof(char) * (256));
-        creer_idf(FLOAT, A->gauche->chaine, temp_char, evaluer(A->droite));
+        erreur = evaluer(A->droite, &flot);
+        erreur = erreur || creer_idf(FLOAT, A->gauche->chaine, temp_char, flot);
         free(temp_char);
-        break;
+        return erreur;
     case N_LINK:
-        interpreter_link(f, A->gauche);
-        break;
+        erreur = interpreter_link(f, A->gauche, nb_clause, nb_sub);
+        return erreur;
     case N_MAPLINK:
-        interpreter_forlink(f, A->gauche);
-        break;
+        erreur = interpreter_maplink(f, A->gauche, nb_clause, nb_sub);
+        return erreur;
     case N_MAPNODE:
-        creer_idf(L_STR, A->gauche->chaine, A->droite->chaine, 0);
-        break;
+        erreur = creer_idf(L_STR, A->gauche->chaine, A->droite->chaine, 0);
+        return erreur;
     case N_CLOSUB:
-        if (!SUB)
+        (*nb_clause)++;
+        if (nb_clause > nb_sub)
         {
             perror("Erreur AST : Subgraph non créé");
-            exit(0);
+            return 1;
         }
-        SUB = 0;
+        print_tab_in_subgraph(f, nb_clause, nb_sub);
         fprintf(f, "\t}\n");
-        break;
+        return 0;
     default:
         perror("Erreur AST : noeud inconnu\n");
         printf("Nature : %d\n", A->nature);
         printf("Chaine : %s\n", A->chaine);
-        break;
+        return 1;
     }
-
-    return SUB;
 }
 
-void interpreter_subtitle(FILE *f, Ast A)
+int interpreter_subtitle(FILE *f, Ast A, int* nb_clause, int* nb_sub)
 {
-    if (SUB)
-    {
-        fprintf(f, "\t}\n");
-        SUB = 0;
-    }
     if (A != NULL && A->nature == N_STR)
     {
-        fprintf(f, "\tsubgraph cluster_%d {\n", nb_sub);
-        nb_sub++;
-        fprintf(f, "\t\tlabel = \"%s\";\n", A->chaine);
-        SUB = 1;
+        (*nb_sub)++;
+        print_tab_in_subgraph(f, nb_clause, nb_sub);
+        fprintf(f, "subgraph cluster_%d {\n", *nb_sub);
+        print_tab_in_subgraph(f, nb_clause, nb_sub);
+        fprintf(f, "\tlabel = \"%s\";\n", A->chaine);
+        return 0;
     }
     else
     {
         perror("Erreur AST : titre subgraph de mauvais type\n");
+        return 1;
     }
 }
 
-void interpreter_link(FILE *f, Ast A)
+int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
 {
     char aff[256];
     float flot;
+    int erreur;
     if (A == NULL || A->nature != N_STR)
     {
         perror("Erreur AST : noeud de mauvais type\n");
         printf("Link a besoin d'une chaine\n");
     }
-    if (SUB)
-    {
-        fprintf(f, "\t");
+    print_tab_in_subgraph(f, nb_clause, nb_sub);
+    if (trouver_idf_char(A->chaine, aff)){
+        return 1;
     }
-    trouver_idf_char(A->chaine, aff);
     fprintf(f, "\t%s --", aff);
     A = A->gauche;
     if (A == NULL || A->nature != N_STR)
     {
         perror("Erreur AST : noeud de mauvais type\n");
         printf("Link a besoin d'une chaine\n");
+        return 1;
     }
-    trouver_idf_char(A->chaine, aff);
+    if (trouver_idf_char(A->chaine, aff)){
+        return 1;
+    }
     fprintf(f, " %s", aff);
     if (A->gauche == NULL)
     {
         fprintf(f, ";\n");
-        return;
+        return 0;
     }
-    flot = evaluer(A->gauche);
+    erreur = evaluer(A->gauche,&flot);
     fprintf(f, " [label=\"%g\", weight=%g", flot, flot);
     A = A->centre;
     if (A == NULL || A->nature != N_STR)
     {
         fprintf(f, "];\n");
-        return;
+        return erreur;
     }
     fprintf(f, ", color=%s];\n", A->chaine);
+    return erreur;
 }
 
-void interpreter_forlink(FILE *f, Ast A)
+int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
 {
     char aff[256];
     char liste1[256];
@@ -205,6 +225,7 @@ void interpreter_forlink(FILE *f, Ast A)
     {
         perror("Erreur AST : noeud de mauvais type\n");
         printf("Forlink a besoin d'une chaine\n");
+        return 1;
     }
     strcpy(liste1, A->chaine);
     A = A->gauche;
@@ -212,6 +233,7 @@ void interpreter_forlink(FILE *f, Ast A)
     {
         perror("Erreur AST : noeud de mauvais type\n");
         printf("Forlink a besoin d'une chaine\n");
+        return 1;
     }
     strcpy(liste2, A->chaine);
     A = A->gauche;
@@ -234,12 +256,11 @@ void interpreter_forlink(FILE *f, Ast A)
         {
             if (liste1[i] == ',' || liste1[i] == ']')
             {
-                if (SUB)
-                {
-                    fprintf(f, "\t");
-                }
+                print_tab_in_subgraph(f, nb_clause, nb_sub);
                 liste1[i] = '\0';
-                trouver_idf_char(&(liste1[temp_1]), aff);
+                if (trouver_idf_char(&(liste1[temp_1]), aff)){
+                    return 1;
+                }
                 fprintf(f, "\t%s --", aff);
                 temp_1 = i + 1;
                 for (int j = temp_2; b == true; j++)
@@ -247,7 +268,9 @@ void interpreter_forlink(FILE *f, Ast A)
                     if (liste2[j] == ',' || liste2[j] == ']')
                     {
                         liste2[j] = '\0';
-                        trouver_idf_char(&(liste2[temp_2]), aff);
+                        if (trouver_idf_char(&(liste2[temp_2]), aff)){
+                            return 1;
+                        }
                         fprintf(f, " %s;\n", aff);
                         temp_2 = j + 1;
                         b = false;
@@ -264,12 +287,11 @@ void interpreter_forlink(FILE *f, Ast A)
         {
             if (liste1[i] == ',' || liste1[i] == ']')
             {
-                if (SUB)
-                {
-                    fprintf(f, "\t");
-                }
+                print_tab_in_subgraph(f, nb_clause, nb_sub);
                 liste1[i] = '\0';
-                trouver_idf_char(&(liste1[temp_1]), aff);
+                if (trouver_idf_char(&(liste1[temp_1]), aff)){
+                    return 1;
+                }
                 fprintf(f, "\t%s --", aff);
                 temp_1 = i + 1;
                 for (int j = temp_2; b == true; j++)
@@ -277,7 +299,9 @@ void interpreter_forlink(FILE *f, Ast A)
                     if (liste2[j] == ',' || liste2[j] == ']')
                     {
                         liste2[j] = '\0';
-                        trouver_idf_char(&(liste2[temp_2]), aff);
+                        if (trouver_idf_char(&(liste2[temp_2]), aff)){
+                            return 1;
+                        }
                         fprintf(f, " %s", aff);
                         temp_2 = j + 1;
                         b = false;
@@ -305,12 +329,11 @@ void interpreter_forlink(FILE *f, Ast A)
         {
             if (liste1[i] == ',' || liste1[i] == ']')
             {
-                if (SUB)
-                {
-                    fprintf(f, "\t");
-                }
+                print_tab_in_subgraph(f, nb_clause, nb_sub);
                 liste1[i] = '\0';
-                trouver_idf_char(&(liste1[temp_1]), aff);
+                if (trouver_idf_char(&(liste1[temp_1]), aff)){
+                    return 1;
+                }
                 fprintf(f, "\t%s --", aff);
                 temp_1 = i + 1;
                 for (int j = temp_2; b == true; j++)
@@ -318,7 +341,9 @@ void interpreter_forlink(FILE *f, Ast A)
                     if (liste2[j] == ',' || liste2[j] == ']')
                     {
                         liste2[j] = '\0';
-                        trouver_idf_char(&(liste2[temp_2]), aff);
+                        if (trouver_idf_char(&(liste2[temp_2]), aff)){
+                            return 1;
+                        }
                         fprintf(f, " %s", aff);
                         temp_2 = j + 1;
                         b = false;
@@ -353,8 +378,9 @@ void interpreter_forlink(FILE *f, Ast A)
 
     default:
         perror("Erreur AST : Interprétation forlink\n");
-        break;
+        return 1;
     }
+    return 0;
 }
 
 void ecrire_char(char *s)
@@ -370,32 +396,36 @@ void ecrire_float(float f)
 int condition(Ast A)
 {
     float a, b;
-    a = evaluer(A->gauche);
-    b = evaluer(A->droite);
+    int erreur;
+    erreur = evaluer(A->gauche,&a);
+    erreur = erreur || evaluer(A->droite,&b);
+    if (erreur){
+        return 1;
+    }
     if (strcmp(A->chaine, "==") == 0)
     {
-        return a == b;
+        return ((a == b) - 1);
     }
     if (strcmp(A->chaine, "<=") == 0)
     {
-        return a <= b;
+        return ((a <= b) - 1);
     }
     if (strcmp(A->chaine, ">=") == 0)
     {
-        return a >= b;
+        return ((a >= b) - 1);
     }
     if (strcmp(A->chaine, "<>") == 0)
     {
-        return a != b;
+        return ((a != b) - 1);
     }
     if (strcmp(A->chaine, "<") == 0)
     {
-        return a < b;
+        return ((a < b) - 1);
     }
     if (strcmp(A->chaine, ">") == 0)
     {
-        return a > b;
+        return ((a > b) - 1);
     }
     perror("Erreur AST : mauvaise interprétation de booléen\n");
-    exit(1);
+    return 1;
 }

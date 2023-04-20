@@ -282,7 +282,7 @@ void reconnaitre_lexeme()
                 etat = E_FIN;
                 break;
 
-            default:
+            case C_ERREUR:
                 etat = E_ERREUR;
                 break;
             }

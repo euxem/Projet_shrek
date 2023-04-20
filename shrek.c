@@ -15,7 +15,8 @@ int traduire_fichier(char *ipath, char *opath)
 {
     Ast A;
     FILE *f;
-    int SUB = 0;
+    int nb_clause = 0;
+    int nb_sub = 0;
 
     f = fopen(opath, "w");
 
@@ -27,10 +28,17 @@ int traduire_fichier(char *ipath, char *opath)
     }
 
     fprintf(f, "graph G {\n");
-    SUB = interpreter(A, f);
-    if (SUB)
+    if (interpreter(A, f, &nb_clause, &nb_sub) != 0)
     {
-        fprintf(f, "\t}\n");
+        printf("\x1b[1;33mWARNING : \x1b[0m");
+        printf("Erreur d'interprétation du fichier %s\n\n", ipath);
+        return 1;
+    }
+    if (nb_clause != nb_sub){
+        perror("Erreur: subgraph non clos\n");
+        printf("\x1b[1;33mWARNING : \x1b[0m");
+        printf("Erreur d'interprétation du fichier %s\n\n", ipath);
+        return 1;
     }
     fprintf(f, "}\n");
 
