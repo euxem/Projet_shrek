@@ -21,7 +21,7 @@ FILE *File;                          // le fichier d'entree
 
 /* --------------------------------------------------------------------- */
 
-void demarrer_car(char *nom_fichier)
+int demarrer_car(char *nom_fichier)
 {
    if (strlen(nom_fichier) == 0)
    {
@@ -31,9 +31,13 @@ void demarrer_car(char *nom_fichier)
    {
       File = fopen(nom_fichier, "r");
    };
+   if (nom_fichier == NULL){
+      return 1;
+   }
    LigneCour = 1;
    ColonneCour = 0;
    avancer_car();
+   return 0;
 }
 
 /* --------------------------------------------------------------------- */

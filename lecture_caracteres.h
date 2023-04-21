@@ -16,7 +16,7 @@
 //        par nom_fichier
 //        fin_de_sequence vaut vrai ou alors caractere_courant est le
 //        premier caractere de la sequence
-void demarrer_car(char *nom_fichier);
+int demarrer_car(char *nom_fichier);
 
 // pre-condition : la sequence de caracteres est accessible
 // e.i. : fin_de_sequence = faux ;
