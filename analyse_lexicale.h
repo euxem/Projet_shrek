@@ -49,10 +49,11 @@ typedef enum
    LIRE,       // La nature du lexeme est le mot clé read
    ECRIRE,     // La nature du lexeme est le mot clé write
    DEUX_POINT, // La nature du lexeme est un deux point (:)
-   PLUS,       // La nature du lexeme est un plus (+)
-   MOINS,      // La nature du lexeme est un moins (-)
-   MUL,        // La nature du lexeme est une étoile (*)
-   DIV,        // La nature du lexeme est un slash (\)
+   PLUS,       // La nature du lexeme est une addition (+)
+   MOINS,      // La nature du lexeme est une soustraction ou moins unaire (-)
+   MUL,        // La nature du lexeme est une multiplication (*)
+   DIV,        // La nature du lexeme est une division (\)
+   MOD,        // La nature du lexeme est un modulo (%)
    PARO,       // La nature du lexeme est une parenthèse ouverte (()
    PARF,       // La nature du lexeme est une parenthèse fermé ())
    FIN,        // La nature du lexeme est une fin de fichier (EOF)

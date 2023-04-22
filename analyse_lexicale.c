@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/*---------------------------------------------------------------*/
+// Include :
 #include "lecture_caracteres.h"
 #include "analyse_lexicale.h"
 
@@ -91,20 +93,27 @@ int reconnaitre_lexeme()
                 lexeme_en_cours.nature = L_NODE;
                 if (nature_caractere(caractere_courant()) == C_CHIFFRE)
                 {
-                    printf("Erreur_Lexicale à la ligne %d, colonne %d : caractère inattendu '%c',%d\n",
-                           numero_ligne(), numero_colonne(), caractere_courant(), caractere_courant());
+                    perror("Erreur Lexicale :\n");
+                    printf("Ligne %d, Colonne %d : caractère inattendu '%c'\n",
+                           numero_ligne(), numero_colonne(), caractere_courant());
                     printf("HINT : Un nom de variable ne peut pas commencer par un chiffre\n");
                     return 1;
                 }
                 ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-                while (caractere_courant() != ']')
+                while (caractere_courant() != ']' && caractere_courant() != EOF)
                 {
                     do
                     {
                         avancer_car();
                         ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-                    } while (caractere_courant() != ',' && caractere_courant() != ']');
+                    } while (caractere_courant() != ',' && caractere_courant() != ']' && caractere_courant() != EOF);
                     lexeme_en_cours.taille++;
+                }
+                if (caractere_courant() == EOF){
+                    perror("Erreur Lexicale :\n");
+                    printf("Ligne %d, Colonne %d : Liste IDENTIFICATEUR non fermé\n",
+                    numero_ligne(), numero_colonne());
+                    return 1;
                 }
                 etat = E_FIN;
                 avancer_car();
@@ -114,14 +123,15 @@ int reconnaitre_lexeme()
                 lexeme_en_cours.nature = L_COLOR;
                 ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
                 avancer_car();
-                while (caractere_courant() != '~')
+                while (caractere_courant() != '~' && caractere_courant() != EOF)
                 {
                     do
                     {
                         if (nature_caractere(caractere_courant()) != C_LETTRE && caractere_courant() != ',')
                         {
-                            printf("Erreur_Lexicale à la ligne %d, colonne %d : caractère inattendu '%c',%d\n",
-                                   numero_ligne(), numero_colonne(), caractere_courant(), caractere_courant());
+                            perror("Erreur Lexicale :\n");
+                            printf("Ligne %d, Colonne %d : caractère inattendu '%c'\n",
+                            numero_ligne(), numero_colonne(), caractere_courant());
                             printf("HINT : Un nom de couleur ne contient que des lettres\n");
                             return 1;
                         }
@@ -134,8 +144,9 @@ int reconnaitre_lexeme()
                         {
                             if (strcmp(verif, "red") != 0 && strcmp(verif, "green") != 0 && strcmp(verif, "blue") != 0 && strcmp(verif, "yellow") != 0 && strcmp(verif, "black") != 0 && strcmp(verif, "grey") != 0)
                             {
-                                printf("Erreur_Lexicale à la ligne %d, colonne %d : caractère inattendu '%c',%d\n",
-                                       numero_ligne(), numero_colonne(), caractere_courant(), caractere_courant());
+                                perror("Erreur Lexicale :\n");
+                                printf("Ligne %d, Colonne %d : caractère inattendu '%c'\n",
+                                numero_ligne(), numero_colonne(), caractere_courant());
                                 printf("HINT : Cette couleur n'existe pas.\n");
                                 printf("Les couleurs disponibles sont : red, green, blue, yellow, black, grey\n");
                                 return 1;
@@ -143,8 +154,14 @@ int reconnaitre_lexeme()
                             verif[0] = '\0';
                         }
                         avancer_car();
-                    } while (caractere_courant() != ',' && caractere_courant() != '~');
+                    } while (caractere_courant() != ',' && caractere_courant() != '~' && caractere_courant() != EOF);
                     lexeme_en_cours.taille++;
+                }
+                if (caractere_courant() == EOF){
+                    perror("Erreur Lexicale :\n");
+                    printf("Ligne %d, Colonne %d : Liste COULEUR non fermé\n",
+                    numero_ligne(), numero_colonne());
+                    return 1;
                 }
                 ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
                 etat = E_FIN;
@@ -166,21 +183,28 @@ int reconnaitre_lexeme()
                 lexeme_en_cours.nature = L_FLOAT;
                 ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
                 avancer_car();
-                while (caractere_courant() != '}')
+                while (caractere_courant() != '}' && caractere_courant() != EOF)
                 {
                     do
                     {
                         if (nature_caractere(caractere_courant()) != C_CHIFFRE && caractere_courant() != ',' && caractere_courant() != '}')
                         {
-                            printf("Erreur_Lexicale à la ligne %d, colonne %d : caractère inattendu '%c',%d\n",
-                                   numero_ligne(), numero_colonne(), caractere_courant(), caractere_courant());
+                            perror("Erreur Lexicale :\n");
+                            printf("Ligne %d, Colonne %d : caractère inattendu '%c'\n",
+                            numero_ligne(), numero_colonne(), caractere_courant());
                             printf("HINT : Un crochet ne peut contenir que des chiffres\n");
                             return 1;
                         }
                         ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
                         avancer_car();
-                    } while (caractere_courant() != ',' && caractere_courant() != '}');
+                    } while (caractere_courant() != ',' && caractere_courant() != '}' && caractere_courant() != EOF);
                     lexeme_en_cours.taille++;
+                }
+                if (caractere_courant() == EOF){
+                    perror("Erreur Lexicale :\n");
+                    printf("Ligne %d, Colonne %d : Liste FLOAT non fermé\n",
+                    numero_ligne(), numero_colonne());
+                    return 1;
                 }
                 ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
                 etat = E_FIN;
@@ -191,18 +215,24 @@ int reconnaitre_lexeme()
                 lexeme_en_cours.nature = L_STR;
                 ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
                 avancer_car();
-                while (caractere_courant() != '\'')
+                while (caractere_courant() != '\'' && caractere_courant() != EOF)
                 {
                     do
                     {
                         ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
                         avancer_car();
-                    } while (caractere_courant() != ',' && caractere_courant() != '\'');
+                    } while (caractere_courant() != ',' && caractere_courant() != '\'' && caractere_courant() != EOF);
                     if (caractere_courant() != ',')
                     {
                         ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
                     }
                     lexeme_en_cours.taille++;
+                }
+                if (caractere_courant() == EOF){
+                    perror("Erreur Lexicale\n");
+                    printf("Ligne %d, Colonne %d : Liste STR non fermé\n",
+                    numero_ligne(), numero_colonne());
+                    return 1;
                 }
                 etat = E_FIN;
                 avancer_car();
@@ -266,6 +296,9 @@ int reconnaitre_lexeme()
                 case '/':
                     lexeme_en_cours.nature = DIV;
                     break;
+                case '%':
+                    lexeme_en_cours.nature = MOD;
+                    break;
                 default:
                     break;
                 }
@@ -325,8 +358,9 @@ int reconnaitre_lexeme()
             break;
 
         default:
-            printf("Erreur_Lexicale à la ligne %d, colonne %d : caractère inattendu '%c',%d\n",
-                   numero_ligne(), numero_colonne(), caractere_courant(), caractere_courant());
+            perror("Erreur Lexicale :\n");
+            printf("Ligne %d, Colonne %d : caractère inattendu '%c'\n",
+                   numero_ligne(), numero_colonne(), caractere_courant());
             return 1;
             break;
         }
@@ -382,7 +416,7 @@ Nature_Caractere nature_caractere(char c)
     {
         return C_GUI;
     }
-    else if (c == '+' || c == '-' || c == '%' || c=='*' || c=='/')
+    else if (c == '+' || c == '-' || c == '%' || c=='*' || c=='/' || c=='%')
     {
         return C_OP;
     }
@@ -621,7 +655,22 @@ void afficher_lexeme(Lexeme lex)
 
 int est_caractère_lexeme_suivant(char c){
     // Liste tout les caractères succeptible d'apartenir au lexeme suivant
-    return (c==':' || c==';' || c=='(' || c==')' || c=='=' || c=='<' || c=='>' || c=='+' || c=='-' || c=='*' || c=='/' || c=='%' || c=='"' || c=='|' || c=='~');
+    return (c==':' || 
+            c==';' || 
+            c=='(' || 
+            c==')' || 
+            c=='=' || 
+            c=='<' || 
+            c=='>' || 
+            c=='+' || 
+            c=='-' || 
+            c=='*' || 
+            c=='/' || 
+            c=='%' || 
+            c=='"' || 
+            c=='|' || 
+            c=='~' || 
+            c==EOF);
 }
 
 void perror(const char *s)

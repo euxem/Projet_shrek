@@ -18,7 +18,11 @@ typedef enum
 	N_AFFINT,
 	N_MAPLINK,
 	N_SI,
-	N_OP,
+	N_PLUS,
+	N_MOINS,
+	N_MUL,
+	N_DIV,
+	N_MOD,
 	N_CLOSUB,
 	N_TANT_QUE
 } TypeAst;

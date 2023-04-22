@@ -1,0 +1,2 @@
+# exemple de l'utilisation du moins unaire #
+write:float -----3 - 4 * -6 + ---100;

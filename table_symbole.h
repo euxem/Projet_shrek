@@ -32,7 +32,7 @@ int trouver_idf_char(char *idf, char *aff);
 int trouver_idf_float(char *idf, float *aff);
 
 // Applique une opération sur deux nombres
-int appliquer_operation(float *a, char *o, float *b);
+int appliquer_operation(float *a, TypeAst op, float *b);
 
 // Evalue l'arbre syntaxique et applique les opérations
 int evaluer(Ast A, float *f);

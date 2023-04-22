@@ -166,32 +166,34 @@ int trouver_idf_float(char *idf, float *aff)
     return 0;
 }
 
-int appliquer_operation(float *a, char *o, float *b)
+int appliquer_operation(float *a, TypeAst op, float *b)
 {
-    if (*o == '+')
+    int a1,b1;
+    switch (op)
     {
-        *a = *a + *b;
-    }
-    else if (*o == '-')
-    {
-        *a = *a - *b;
-    }
-    else if (*o == '%')
-    {
-        int a1 = (int)*a;
-        int b1 = (int)*b;
-        *a = a1 % b1;
-    }
-    else if (*o == '*')
-    {
-        *a = *a * *b;
-    }
-    else if (*o == '/')
-    {
+    case N_DIV:
+        if (*b == 0){
+            perror("ERREUR: Division par 0.\n");
+            afficher_lexeme(lexeme_courant());
+            return 1;
+        }
         *a = *a / *b;
-    }
-    else
-    {
+        break;
+    case N_PLUS:
+        *a = *a + *b;
+        break;
+    case N_MOINS:
+        *a = *a - *b;
+        break;
+    case N_MUL:
+        *a = *a * *b;
+        break;
+    case N_MOD:
+        a1 = (int)*a;
+        b1 = (int)*b;
+        *a = a1 % b1;
+        break;
+    default:
         perror("ERREUR: Opération non reconnue.\n");
         afficher_lexeme(lexeme_courant());
         return 1;
@@ -227,18 +229,22 @@ int evaluer(Ast A, float* f)
     case N_FLOAT:
         *f = A->valeur;
         return 0;
-    case N_OP:
+    case N_PLUS:
+    case N_DIV:
+    case N_MOINS:
+    case N_MOD:
+    case N_MUL:
         erreur = evaluer(A->gauche,f) || evaluer(A->droite,&f_temp);
         if (erreur){
             return erreur;
         }
         if (A->valeur != 0)
         {
-            erreur = erreur || appliquer_operation(f, A->chaine,&f_temp);
+            erreur = erreur || appliquer_operation(f, A->nature,&f_temp);
             *f = *f * (A->valeur);
             return erreur;
         }
-        return erreur || appliquer_operation(f, A->chaine,&f_temp);
+        return erreur || appliquer_operation(f, A->nature,&f_temp);
     default:
         perror("Erreur d'évaluation d'opération.\n");
         afficher_lexeme(lexeme_courant());
