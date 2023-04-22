@@ -335,7 +335,7 @@ int Rec_inst(Ast *A)
         }
         A1 = nouvelle_cellule_ast();
         (*A)->gauche = A1;
-        A1->nature = N_STR;
+        A1->nature = N_IDF;
         strcpy(A1->chaine, lexeme_courant().chaine);
         if (avancer() != 0)
         {
@@ -361,7 +361,7 @@ int Rec_inst(Ast *A)
         }
         A1->gauche = nouvelle_cellule_ast();
         A1 = A1->gauche;
-        A1->nature = N_STR;
+        A1->nature = N_IDF;
         strcpy(A1->chaine, lexeme_courant().chaine);
         if (avancer() != 0)
         {
@@ -423,11 +423,10 @@ int Rec_suite_ecrire(Ast *A)
         }
         A1 = nouvelle_cellule_ast();
         (*A)->gauche = A1;
-        A1->nature = N_STR;
         if (lexeme_courant().nature == STRING){
-            A1->valeur=1;
+            A1->nature = N_STR;
         }else{
-            A1->valeur=0;
+            A1->nature = N_IDF;
         }
         strcpy(A1->chaine, lexeme_courant().chaine);
         if (avancer() != 0)
@@ -542,7 +541,7 @@ int Rec_seq_aff(Ast *A)
             }
             A1 = nouvelle_cellule_ast();
             (*A)->gauche = A1;
-            A1->nature = N_STR;
+            A1->nature = N_IDF;
             strcpy(A1->chaine, lexeme_courant().chaine);
             if (avancer() != 0)
         {
@@ -554,7 +553,7 @@ int Rec_seq_aff(Ast *A)
             (*A)->nature = N_LIREFLOAT;
             A1 = nouvelle_cellule_ast();
             (*A)->gauche = A1;
-            A1->nature = N_STR;
+            A1->nature = N_IDF;
             strcpy(A1->chaine, lexeme_courant().chaine);
             if (avancer() != 0)
             {
@@ -575,7 +574,7 @@ int Rec_seq_aff(Ast *A)
         (*A)->nature = N_AFFINT;
         A1 = nouvelle_cellule_ast();
         (*A)->gauche = A1;
-        A1->nature = N_STR;
+        A1->nature = N_IDF;
         strcpy(A1->chaine, lexeme_courant().chaine);
         if (avancer() != 0)
         {
@@ -651,7 +650,7 @@ int Rec_facteur(Ast *A)
     else if (lexeme_courant().nature == IDF)
     {
         (*A) = nouvelle_cellule_ast();
-        (*A)->nature = N_STR;
+        (*A)->nature = N_IDF;
         strcpy((*A)->chaine, lexeme_courant().chaine);
         (*A)->valeur = f;
         if (avancer() != 0)
@@ -777,7 +776,7 @@ int Rec_suite_node(Ast *A)
         return 1; // Si erreur
     }
     A1 = nouvelle_cellule_ast();
-    A1->nature = N_STR;
+    A1->nature = N_IDF;
     strcpy(A1->chaine, lexeme_courant().chaine);
     (*A)->gauche = A1;
     if (avancer() != 0)
@@ -803,10 +802,11 @@ int Rec_suite_node(Ast *A)
         return 1; // Si erreur
     }
     A1 = nouvelle_cellule_ast();
-    A1->nature = N_STR;
     if (lexeme_courant().nature == STRING || lexeme_courant().nature == FLOAT)
     {
-        A1->valeur = 1;
+        A1->nature = N_STR;
+    }else{
+        A1->nature = N_IDF;
     }
     strcpy(A1->chaine, lexeme_courant().chaine);
     (*A)->droite = A1;
@@ -828,8 +828,7 @@ int Rec_suite_concat(Ast *A)
     }
     A1 = nouvelle_cellule_ast();
     (*A)->droite = A1;
-    A1->nature = N_STR;
-    strcpy(A1->chaine, lexeme_courant().chaine);
+    A1->nature = N_CONCAT;
     if (avancer() != 0)
     {
         return 1; // Si erreur
@@ -843,10 +842,11 @@ int Rec_suite_concat(Ast *A)
     }
     A1->droite = nouvelle_cellule_ast();
     A1 = A1->droite;
-    A1->nature = N_STR;
     if (lexeme_courant().nature == STRING || lexeme_courant().nature == FLOAT)
     {
-        A1->valeur = 1;
+        A1->nature = N_STR;
+    }else{
+        A1->nature = N_IDF;
     }
     strcpy(A1->chaine, lexeme_courant().chaine);
     if (avancer() != 0)
@@ -879,7 +879,7 @@ int Rec_suite_map(Ast *A)
             return 1; // Si erreur
         }
         A1 = nouvelle_cellule_ast();
-        A1->nature = N_STR;
+        A1->nature = N_IDF;
         a = lexeme_courant().taille;
         strcpy(A1->chaine, lexeme_courant().chaine);
         (*A)->gauche = A1;
@@ -928,7 +928,7 @@ int Rec_suite_map(Ast *A)
         }
         A1 = nouvelle_cellule_ast();
         (*A)->gauche = A1;
-        A1->nature = N_STR;
+        A1->nature = N_IDF;
         a = lexeme_courant().taille;
         strcpy(A1->chaine, lexeme_courant().chaine);
         if (avancer() != 0)
@@ -944,7 +944,7 @@ int Rec_suite_map(Ast *A)
         }
         A1->gauche = nouvelle_cellule_ast();
         A1 = A1->gauche;
-        A1->nature = N_STR;
+        A1->nature = N_IDF;
         b = lexeme_courant().taille;
         strcpy(A1->chaine, lexeme_courant().chaine);
         if (a != b)

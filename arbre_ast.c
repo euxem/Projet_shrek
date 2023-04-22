@@ -166,7 +166,7 @@ int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     char aff[256];
     float flot;
     int erreur;
-    if (A == NULL || A->nature != N_STR)
+    if (A == NULL || A->nature != N_IDF)
     {
         perror("Erreur AST : noeud de mauvais type\n");
         printf("Link a besoin d'une chaine\n");
@@ -177,7 +177,7 @@ int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     }
     fprintf(f, "\t%s --", aff);
     A = A->gauche;
-    if (A == NULL || A->nature != N_STR)
+    if (A == NULL || A->nature != N_IDF)
     {
         perror("Erreur AST : noeud de mauvais type\n");
         printf("Link a besoin d'une chaine\n");
@@ -221,7 +221,7 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     } CAS;
     CAS cas = NORMAL;
     int temp_1 = 1, temp_2 = 1, temp_weight = 1, temp_col = 1;
-    if (A == NULL || A->nature != N_STR)
+    if (A == NULL || A->nature != N_IDF)
     {
         perror("Erreur AST : noeud de mauvais type\n");
         printf("Forlink a besoin d'une chaine\n");
@@ -229,7 +229,7 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     }
     strcpy(liste1, A->chaine);
     A = A->gauche;
-    if (A == NULL || A->nature != N_STR)
+    if (A == NULL || A->nature != N_IDF)
     {
         perror("Erreur AST : noeud de mauvais type\n");
         printf("Forlink a besoin d'une chaine\n");

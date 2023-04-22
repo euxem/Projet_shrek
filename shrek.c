@@ -34,8 +34,16 @@ int traduire_fichier(char *ipath, char *opath)
         printf("Erreur d'interprétation du fichier %s\n\n", ipath);
         return 1;
     }
-    if (nb_clause != nb_sub){
-        perror("Erreur: subgraph non clos\n");
+    if (nb_clause < nb_sub){
+        perror("Erreur: interprétation\n");
+        printf("subgraph non clos\n");
+        printf("\x1b[1;33mWARNING : \x1b[0m");
+        printf("Erreur d'interprétation du fichier %s\n\n", ipath);
+        return 1;
+    }
+    if (nb_clause > nb_sub){
+        perror("Erreur: interprétation\n");
+        printf("Subgraph clos mais jamais ouvert\n");
         printf("\x1b[1;33mWARNING : \x1b[0m");
         printf("Erreur d'interprétation du fichier %s\n\n", ipath);
         return 1;

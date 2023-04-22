@@ -201,9 +201,9 @@ int appliquer_operation(float *a, TypeAst op, float *b)
     return 0;
 }
 
-int appliquer_concat(char *a, char *o, char *b, char **c)
+int appliquer_concat(char *a, TypeAst op, char *b, char **c)
 {
-    if (*o == '|')
+    if (op == N_CONCAT)
     {
         strcpy(*c, strcat(a, b));
         return 0;
@@ -222,7 +222,7 @@ int evaluer(Ast A, float* f)
     float f_temp;
     switch (A->nature)
     {
-    case N_STR:
+    case N_IDF:
         erreur = trouver_idf_float(A->chaine, f);
         *f = (*f) * (A->valeur);
         return erreur;
@@ -258,7 +258,7 @@ int evaluer_char(Ast A, char **c)
 {
     char c1[256];
     Ast B = A->droite;
-    if (A->nature == N_STR && A->valeur == 0)
+    if (A->nature == N_IDF)
     {
         if (trouver_idf_char(A->chaine, c1))
         {
@@ -279,7 +279,7 @@ int evaluer_char(Ast A, char **c)
         {
             return 1;
         }
-        return appliquer_concat(c1, B->chaine, *c, c);
+        return appliquer_concat(c1, B->nature, *c, c);
     }
     return 0;
 }
