@@ -5,19 +5,21 @@
 #include "arbre_ast.h"
 ////////////////////////////////////////////////////
 // Fonction print_tab_in_subgraph :
-void print_tab_in_subgraph(FILE* f, int *nb_clause, int *nb_sub){
-    for (int i = (*nb_sub)-(*nb_clause); i>0; i--){
+void print_tab_in_subgraph(FILE *f, int *nb_closed_sub, int *nb_sub)
+{
+    for (int i = (*nb_sub) - (*nb_closed_sub); i > 0; i--)
+    {
         fprintf(f, "\t");
     }
 }
 ////////////////////////////////////////////////////
 // Fonction de traduction d'arbre en fichier .dot
 // Renvoie 1 si il y a une erreur d'interprétation, O sinon
-int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
+int interpreter(Ast A, FILE *f, int *nb_closed_sub, int *nb_sub)
 {
     char *temp_char;
-    int erreur=0;
-    float flot=0.0;
+    int erreur = 0;
+    float flot = 0.0;
     int res_cond_temp;
     if (A == NULL)
     {
@@ -26,56 +28,58 @@ int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
     switch (A->nature)
     {
     case N_SEPARATEUR:
-        erreur = interpreter(A->gauche, f, nb_clause, nb_sub) || interpreter(A->droite, f, nb_clause, nb_sub);
+        erreur = interpreter(A->gauche, f, nb_closed_sub, nb_sub) || interpreter(A->droite, f, nb_closed_sub, nb_sub);
         return erreur;
     case N_SI:
         switch (condition(A->centre))
         {
         case 0:
-            erreur = interpreter(A->droite, f, nb_clause, nb_sub);
+            erreur = interpreter(A->droite, f, nb_closed_sub, nb_sub);
             return erreur;
         case -1:
-            erreur = interpreter(A->gauche, f, nb_clause, nb_sub);
+            erreur = interpreter(A->gauche, f, nb_closed_sub, nb_sub);
             return erreur;
         default:
             return 1;
         }
     case N_TANT_QUE:
-        res_cond_temp = condition(A->centre); 
+        res_cond_temp = condition(A->centre);
         while (res_cond_temp == 0 && !erreur)
         {
-            erreur = erreur || interpreter(A->droite, f, nb_clause, nb_sub);
+            erreur = erreur || interpreter(A->droite, f, nb_closed_sub, nb_sub);
             res_cond_temp = condition(A->centre);
         }
-        if (res_cond_temp == 1){
+        if (res_cond_temp == 1)
+        {
             return 1;
         }
         return erreur;
     case N_FOR:
-        erreur = interpreter(A->gauche, f, nb_clause, nb_sub);
-        res_cond_temp = condition(A->centre); 
+        erreur = interpreter(A->gauche, f, nb_closed_sub, nb_sub);
+        res_cond_temp = condition(A->centre);
         while (res_cond_temp == 0 && !erreur)
         {
-            erreur = erreur || interpreter(A->droite, f, nb_clause, nb_sub);
+            erreur = erreur || interpreter(A->droite, f, nb_closed_sub, nb_sub);
             temp_char = malloc(sizeof(char) * (256));
-            erreur = erreur || evaluer(A->gauche->centre,&flot);
+            erreur = erreur || evaluer(A->gauche->centre, &flot);
             erreur = erreur || creer_idf(FLOAT, A->gauche->gauche->chaine, temp_char, flot);
             free(temp_char);
             res_cond_temp = condition(A->centre);
         }
-        if (res_cond_temp == 1){
+        if (res_cond_temp == 1)
+        {
             return 1;
         }
         return erreur;
 
     case N_SUB:
-        erreur = interpreter_subtitle(f, A->gauche, nb_clause, nb_sub);
+        erreur = interpreter_subtitle(f, A->gauche, nb_closed_sub, nb_sub);
         return erreur;
     case N_NODE:
         temp_char = malloc(sizeof(char) * (256));
         if (evaluer_char(A->droite, &temp_char) != 0)
         {
-            perror("Erreur AST : identificateur non défini");
+            perror("Erreur AST : identificateur non défini\n");
             return 1;
         }
         erreur = creer_idf(STRING, A->gauche->chaine, temp_char, 0);
@@ -99,7 +103,8 @@ int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
         return erreur;
     case N_ECRIREFLOAT:
         erreur = evaluer(A->gauche, &flot);
-        if (erreur){
+        if (erreur)
+        {
             return 1;
         }
         ecrire_float(flot);
@@ -108,7 +113,7 @@ int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
         temp_char = malloc(sizeof(char) * (256));
         if (evaluer_char(A->gauche, &temp_char) != 0)
         {
-            perror("Erreur AST : identificateur non défini");
+            perror("Erreur AST : identificateur non défini\n");
             return 1;
         }
         ecrire_char(temp_char);
@@ -121,22 +126,25 @@ int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
         free(temp_char);
         return erreur;
     case N_LINK:
-        erreur = interpreter_link(f, A->gauche, nb_clause, nb_sub);
+        erreur = interpreter_link(f, A->gauche, nb_closed_sub, nb_sub);
         return erreur;
     case N_MAPLINK:
-        erreur = interpreter_maplink(f, A->gauche, nb_clause, nb_sub);
+        erreur = interpreter_maplink(f, A->gauche, nb_closed_sub, nb_sub);
         return erreur;
     case N_MAPNODE:
         erreur = creer_idf(L_STR, A->gauche->chaine, A->droite->chaine, 0);
         return erreur;
     case N_CLOSUB:
-        (*nb_clause)++;
-        if (nb_clause > nb_sub)
+        (*nb_closed_sub)++;
+        if (*nb_closed_sub > *nb_sub)
         {
-            perror("Erreur AST : Subgraph non créé");
+            perror("Erreur AST : Pas de subgraph ouvert\n");
+            printf("HINT :");
+            printf("Nombre de subgraph ouverts : %d\n", *nb_sub);
+            printf("Nombre de subgraph fermés : %d\n", *nb_closed_sub);
             return 1;
         }
-        print_tab_in_subgraph(f, nb_clause, nb_sub);
+        print_tab_in_subgraph(f, nb_closed_sub, nb_sub);
         fprintf(f, "\t}\n");
         return 0;
     default:
@@ -148,26 +156,27 @@ int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
 }
 ////////////////////////////////////////////////////
 // Fonction de traduction de subgraph :
-int interpreter_subtitle(FILE *f, Ast A, int* nb_clause, int* nb_sub)
+int interpreter_subtitle(FILE *f, Ast A, int *nb_closed_sub, int *nb_sub)
 {
     if (A != NULL && A->nature == N_STR)
     {
         (*nb_sub)++;
-        print_tab_in_subgraph(f, nb_clause, nb_sub);
+        print_tab_in_subgraph(f, nb_closed_sub, nb_sub);
         fprintf(f, "subgraph cluster_%d {\n", *nb_sub);
-        print_tab_in_subgraph(f, nb_clause, nb_sub);
+        print_tab_in_subgraph(f, nb_closed_sub, nb_sub);
         fprintf(f, "\tlabel = \"%s\";\n", A->chaine);
         return 0;
     }
     else
     {
         perror("Erreur AST : titre subgraph de mauvais type\n");
+        printf("HINT : le titre d'un graph doit être une chaine\n");
         return 1;
     }
 }
 ////////////////////////////////////////////////////
 // Fonction de traduction de lien :
-int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
+int interpreter_link(FILE *f, Ast A, int *nb_closed_sub, int *nb_sub)
 {
     char aff[256];
     float flot;
@@ -175,10 +184,11 @@ int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     if (A == NULL || A->nature != N_IDF)
     {
         perror("Erreur AST : noeud de mauvais type\n");
-        printf("Link a besoin d'une chaine\n");
+        printf("HINT : l'instruction link a besoin d'une chaine de caractères\n");
     }
-    print_tab_in_subgraph(f, nb_clause, nb_sub);
-    if (trouver_idf_char(A->chaine, aff)){
+    print_tab_in_subgraph(f, nb_closed_sub, nb_sub);
+    if (trouver_idf_char(A->chaine, aff))
+    {
         return 1;
     }
     fprintf(f, "\t%s --", aff);
@@ -186,10 +196,11 @@ int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     if (A == NULL || A->nature != N_IDF)
     {
         perror("Erreur AST : noeud de mauvais type\n");
-        printf("Link a besoin d'une chaine\n");
+        printf("L'instruction link a besoin d'une chaine de caractères\n");
         return 1;
     }
-    if (trouver_idf_char(A->chaine, aff)){
+    if (trouver_idf_char(A->chaine, aff))
+    {
         return 1;
     }
     fprintf(f, " %s", aff);
@@ -198,7 +209,7 @@ int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
         fprintf(f, ";\n");
         return 0;
     }
-    erreur = evaluer(A->gauche,&flot);
+    erreur = evaluer(A->gauche, &flot);
     fprintf(f, " [label=\"%g\", weight=%g", flot, flot);
     A = A->centre;
     if (A == NULL || A->nature != N_STR)
@@ -211,7 +222,7 @@ int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
 }
 ////////////////////////////////////////////////////
 // Fonction de traduction de liens multiples :
-int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
+int interpreter_maplink(FILE *f, Ast A, int *nb_closed_sub, int *nb_sub)
 {
     char aff[256];
     char liste1[256];
@@ -231,7 +242,7 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     if (A == NULL || A->nature != N_IDF)
     {
         perror("Erreur AST : noeud de mauvais type\n");
-        printf("Forlink a besoin d'une chaine\n");
+        printf("L'instruciton forlink a besoin d'une chaine de caractères\n");
         return 1;
     }
     strcpy(liste1, A->chaine);
@@ -239,7 +250,7 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     if (A == NULL || A->nature != N_IDF)
     {
         perror("Erreur AST : noeud de mauvais type\n");
-        printf("Forlink a besoin d'une chaine\n");
+        printf("L'instruciton forlink a besoin d'une chaine de caractères\n");
         return 1;
     }
     strcpy(liste2, A->chaine);
@@ -263,9 +274,10 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
         {
             if (liste1[i] == ',' || liste1[i] == ']')
             {
-                print_tab_in_subgraph(f, nb_clause, nb_sub);
+                print_tab_in_subgraph(f, nb_closed_sub, nb_sub);
                 liste1[i] = '\0';
-                if (trouver_idf_char(&(liste1[temp_1]), aff)){
+                if (trouver_idf_char(&(liste1[temp_1]), aff))
+                {
                     return 1;
                 }
                 fprintf(f, "\t%s --", aff);
@@ -275,7 +287,8 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
                     if (liste2[j] == ',' || liste2[j] == ']')
                     {
                         liste2[j] = '\0';
-                        if (trouver_idf_char(&(liste2[temp_2]), aff)){
+                        if (trouver_idf_char(&(liste2[temp_2]), aff))
+                        {
                             return 1;
                         }
                         fprintf(f, " %s;\n", aff);
@@ -294,9 +307,10 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
         {
             if (liste1[i] == ',' || liste1[i] == ']')
             {
-                print_tab_in_subgraph(f, nb_clause, nb_sub);
+                print_tab_in_subgraph(f, nb_closed_sub, nb_sub);
                 liste1[i] = '\0';
-                if (trouver_idf_char(&(liste1[temp_1]), aff)){
+                if (trouver_idf_char(&(liste1[temp_1]), aff))
+                {
                     return 1;
                 }
                 fprintf(f, "\t%s --", aff);
@@ -306,7 +320,8 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
                     if (liste2[j] == ',' || liste2[j] == ']')
                     {
                         liste2[j] = '\0';
-                        if (trouver_idf_char(&(liste2[temp_2]), aff)){
+                        if (trouver_idf_char(&(liste2[temp_2]), aff))
+                        {
                             return 1;
                         }
                         fprintf(f, " %s", aff);
@@ -336,9 +351,10 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
         {
             if (liste1[i] == ',' || liste1[i] == ']')
             {
-                print_tab_in_subgraph(f, nb_clause, nb_sub);
+                print_tab_in_subgraph(f, nb_closed_sub, nb_sub);
                 liste1[i] = '\0';
-                if (trouver_idf_char(&(liste1[temp_1]), aff)){
+                if (trouver_idf_char(&(liste1[temp_1]), aff))
+                {
                     return 1;
                 }
                 fprintf(f, "\t%s --", aff);
@@ -348,7 +364,8 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
                     if (liste2[j] == ',' || liste2[j] == ']')
                     {
                         liste2[j] = '\0';
-                        if (trouver_idf_char(&(liste2[temp_2]), aff)){
+                        if (trouver_idf_char(&(liste2[temp_2]), aff))
+                        {
                             return 1;
                         }
                         fprintf(f, " %s", aff);
@@ -385,6 +402,7 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
 
     default:
         perror("Erreur AST : Interprétation forlink\n");
+        printf("HINT : Seulement 3 cas possibles : NORMAL, WEIGHT, COLOR\n");
         return 1;
     }
     return 0;
@@ -407,36 +425,41 @@ int condition(Ast A)
 {
     float a, b;
     int erreur;
-    erreur = evaluer(A->gauche,&a);
-    erreur = erreur || evaluer(A->droite,&b);
-    if (erreur){
+    erreur = evaluer(A->gauche, &a);
+    erreur = erreur || evaluer(A->droite, &b);
+    if (erreur)
+    {
         return 1;
     }
-    if (strcmp(A->chaine, "==") == 0)
+    else if (strcmp(A->chaine, "==") == 0)
     {
         return ((a == b) - 1);
     }
-    if (strcmp(A->chaine, "<=") == 0)
+    else if (strcmp(A->chaine, "<=") == 0)
     {
         return ((a <= b) - 1);
     }
-    if (strcmp(A->chaine, ">=") == 0)
+    else if (strcmp(A->chaine, ">=") == 0)
     {
         return ((a >= b) - 1);
     }
-    if (strcmp(A->chaine, "<>") == 0)
+    else if (strcmp(A->chaine, "<>") == 0)
     {
         return ((a != b) - 1);
     }
-    if (strcmp(A->chaine, "<") == 0)
+    else if (strcmp(A->chaine, "<") == 0)
     {
         return ((a < b) - 1);
     }
-    if (strcmp(A->chaine, ">") == 0)
+    else if (strcmp(A->chaine, ">") == 0)
     {
         return ((a > b) - 1);
     }
-    perror("Erreur AST : mauvaise interprétation de booléen\n");
-    return 1;
+    else
+    {
+        perror("Erreur AST : L'opérateur de comparaison n'est pas reconnu\n");
+        printf("HINT : Seuls les opérateurs suivants sont reconnus : ==, <=, >=, <>, <, >\n");
+        return 1;
+    }
 }
 ////////////////////////////////////////////////////

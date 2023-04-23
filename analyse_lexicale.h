@@ -130,5 +130,9 @@ int est_caractère_lexeme_suivant(char c);
 // Afficher une string d'erreur
 // (En rouge et en gras)
 void perror(const char *s);
+//////////
+// Afficher une string de warning
+// (En jaune et en gras)
+void pwarn(const char *s);
 
 #endif

@@ -11,41 +11,60 @@
 #include "type_ast.h"
 #include "arbre_ast.h"
 
+void show_help(char **argv)
+{
+    printf("Usage: %s [-i input file] [-o output file] [-h]\n", argv[0]);
+    printf("Usage: %s [-f input folder] [-h]\n", argv[0]);
+    printf("Si aucun fichier d'entrée n'est spécifié, l'entrée standard est utilisée.\n");
+    printf("Si aucun fichier de sortie n'est spécifié, le fichier 'output.dot' est utilisé.\n");
+    printf("Si un dossier est spécifié, tous les fichiers .shrek du dossier seront traduits.\n");
+    printf("Le fichiers .dot seront créés dans un sous dossier /dot_generes.\n");
+}
+
 int traduire_fichier(char *ipath, char *opath)
 {
     Ast A;
     FILE *f;
-    int nb_clause = 0;
+    int nb_closed_sub = 0;
     int nb_sub = 0;
 
     f = fopen(opath, "w");
 
-    if (analyse(ipath, &A) != 0)
+    int err_analyse = analyse(ipath, &A);
+    if (err_analyse > 0)
     {
-        printf("\x1b[1;33mWARNING : \x1b[0m");
-        printf("Erreur d'analyse du fichier %s\n\n", ipath);
+        pwarn("WARNING: analyse\n");
+        printf("Erreur d'analyse du fichier %s\n", ipath);
         return 1;
+    }
+    else if (err_analyse < 0)
+    {
+        pwarn("WARNING: fichier vide\n");
+        printf("Le fichier %s est vide\n", ipath ? ipath : "stdin");
+        return 0;
     }
 
     fprintf(f, "graph G {\n");
-    if (interpreter(A, f, &nb_clause, &nb_sub) != 0)
+    if (interpreter(A, f, &nb_closed_sub, &nb_sub) != 0)
     {
-        printf("\x1b[1;33mWARNING : \x1b[0m");
-        printf("Erreur d'interprétation du fichier %s\n\n", ipath);
+        pwarn("WARNING: interprétation\n");
+        printf("Erreur d'interprétation du fichier %s\n", ipath);
         return 1;
     }
-    if (nb_clause < nb_sub){
+    if (nb_closed_sub < nb_sub)
+    {
         perror("Erreur: interprétation\n");
-        printf("subgraph non clos\n");
-        printf("\x1b[1;33mWARNING : \x1b[0m");
-        printf("Erreur d'interprétation du fichier %s\n\n", ipath);
+        printf("Subgraph non clos\n");
+        pwarn("WARNING: \n");
+        printf("Erreur d'interprétation du fichier %s\n", ipath);
         return 1;
     }
-    if (nb_clause > nb_sub){
+    if (nb_closed_sub > nb_sub)
+    {
         perror("Erreur: interprétation\n");
         printf("Subgraph clos mais jamais ouvert\n");
-        printf("\x1b[1;33mWARNING : \x1b[0m");
-        printf("Erreur d'interprétation du fichier %s\n\n", ipath);
+        pwarn("WARNING: \n");
+        printf("Erreur d'interprétation du fichier %s\n", ipath);
         return 1;
     }
     fprintf(f, "}\n");
@@ -75,6 +94,12 @@ int main(int argc, char **argv)
 
     int folder = 0;
 
+    if (argc == 2)
+    {
+        show_help(argv);
+        return 1;
+    }
+
     while ((c = getopt(argc, argv, "i:o:f:h")) != -1)
     {
         switch (c)
@@ -90,12 +115,7 @@ int main(int argc, char **argv)
             folder = 1;
             break;
         case 'h':
-            printf("Usage: %s [-i input file] [-o output file] [-h]\n", argv[0]);
-            printf("Usage: %s [-f input folder] [-h]\n", argv[0]);
-            printf("Si aucun fichier d'entrée n'est spécifié, l'entrée standard est utilisée.\n");
-            printf("Si aucun fichier de sortie n'est spécifié, le fichier 'output.dot' est utilisé.\n");
-            printf("Si un dossier est spécifié, tous les fichiers .shrek du dossier seront traduits.\n");
-            printf("Le fichiers .dot seront créés dans un sous dossier /dot_generes.\n");
+            show_help(argv);
             return 0;
         case '?':
         default:
@@ -165,23 +185,21 @@ int main(int argc, char **argv)
                         // Et on supprime le fichier .dot
                         remove(opath);
                     }
+                    printf("\n------\n");
+
                     // Free
                     free(ipath);
                     free(opath);
                 }
             }
         }
+        printf("\n\x1b[2F---------------\n");
+        printf("Tous les fichiers ont été traités avec succès.\n");
         free(dotpath);
         closedir(d);
     }
     else
     {
-        // Si aucun fichier d'entrée n'est spécifié, on utilise l'entrée standard
-        if (ipath == NULL)
-        {
-            ipath = malloc(1);
-            strcpy(ipath, "");
-        }
         // Si aucun fichier de sortie n'est spécifié, on utilise output.dot
         if (opath == NULL)
         {
@@ -194,10 +212,10 @@ int main(int argc, char **argv)
     if (err)
     {
         char *err_msg = malloc(30);
-        printf("---------------\n");
+        printf("\n\x1b[1F---------------\n");
         sprintf(err_msg, "%d/%d fichier(s) ont généré des erreurs.\n", err, nb_files);
         perror(err_msg);
-        printf("Un fichier .dot n'a pas été généré pour ces fichiers.\n");
+        printf("Un fichier .dot n'a pas été généré pour ces programmes.\n");
         return err;
     }
 

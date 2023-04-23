@@ -30,8 +30,8 @@ int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
         {
             if (strcmp(cel->idf, idf) == 0)
             {
-                cel->nature=STRING;
-                cel->aff_float=0;
+                cel->nature = STRING;
+                cel->aff_float = 0;
                 strcpy(cel->aff_char, chaine);
                 return 0;
             }
@@ -50,7 +50,7 @@ int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
         {
             if (strcmp(cel->idf, idf) == 0)
             {
-                cel->nature=FLOAT;
+                cel->nature = FLOAT;
                 cel->aff_float = val;
                 sprintf(chaine, "%g", val);
                 strcpy(cel->aff_char, chaine);
@@ -83,7 +83,7 @@ int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
                 {
                     if (strcmp(cel->idf, &(idf[i - 1])) == 0)
                     {
-                        cel->nature=STRING;
+                        cel->nature = STRING;
                         for (j = strlen(chaine); b == true; j--)
                         {
                             if (chaine[j - 1] == ',' || chaine[j - 1] == '\'')
@@ -120,6 +120,7 @@ int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
         break;
     default:
         perror("ERREUR: Nature incorrecte dans la table symbolique.\n");
+        printf("HINT : types possibles : STRING, FLOAT, L_STR\n");
         return 1;
     }
     return 0;
@@ -138,7 +139,7 @@ int trouver_idf_char(char *idf, char *aff)
     if (cel == NULL)
     {
         perror("Erreur Identificateur\n");
-        printf("L'identificateur %s n'est pas définie.\n",idf);
+        printf("L'identificateur %s n'est pas définit.\n", idf);
         return 1;
     }
     // Si idf est trouvé
@@ -158,12 +159,13 @@ int trouver_idf_float(char *idf, float *aff)
     if (cel == NULL)
     {
         perror("Erreur Identificateur\n");
-        printf("L'identificateur %s n'est pas définie.\n",idf);
+        printf("L'identificateur %s n'est pas définie.\n", idf);
         return 1;
     }
-    if (cel->nature == STRING){
+    if (cel->nature == STRING)
+    {
         perror("Erreur Identificateur\n");
-        printf("Le type de l'identificateur %s est STRING, il ne peut donc pas être utilisé dans une eag.\n",cel->idf);
+        printf("Le type de l'identificateur %s est STRING, il ne peut donc pas être utilisé dans une expression entièrement parenthésée.\n", cel->idf);
         return 1;
     }
     *aff = cel->aff_float;
@@ -173,11 +175,12 @@ int trouver_idf_float(char *idf, float *aff)
 // Fonction appliquant une opération.
 int appliquer_operation(float *a, TypeAst op, float *b)
 {
-    int a1,b1;
+    int a1, b1;
     switch (op)
     {
     case N_DIV:
-        if (*b == 0){
+        if (*b == 0)
+        {
             perror("ERREUR: Division par 0.\n");
             afficher_lexeme(lexeme_courant());
             return 1;
@@ -223,7 +226,7 @@ int appliquer_concat(char *a, TypeAst op, char *b, char **c)
 }
 ///////////////////////////////////////////////////////////////////
 // Fonction évaluant une eag
-int evaluer(Ast A, float* f)
+int evaluer(Ast A, float *f)
 {
     int erreur;
     float f_temp;
@@ -241,17 +244,18 @@ int evaluer(Ast A, float* f)
     case N_MOINS:
     case N_MOD:
     case N_MUL:
-        erreur = evaluer(A->gauche,f) || evaluer(A->droite,&f_temp);
-        if (erreur){
+        erreur = evaluer(A->gauche, f) || evaluer(A->droite, &f_temp);
+        if (erreur)
+        {
             return erreur;
         }
         if (A->valeur != 0)
         {
-            erreur = erreur || appliquer_operation(f, A->nature,&f_temp);
+            erreur = erreur || appliquer_operation(f, A->nature, &f_temp);
             *f = *f * (A->valeur);
             return erreur;
         }
-        return erreur || appliquer_operation(f, A->nature,&f_temp);
+        return erreur || appliquer_operation(f, A->nature, &f_temp);
     default:
         perror("Erreur d'évaluation d'opération.\n");
         afficher_lexeme(lexeme_courant());
