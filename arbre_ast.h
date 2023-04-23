@@ -18,7 +18,7 @@ graph G {
 void print_tab_in_subgraph(FILE *f, int* nb_clause, int* nb_sub);
 //////////////
 // Interprête un arbre Ast pour créer un fichier .dot (fichier f).
-// Si l'arbre Ast à une erreur de construction, return 1, sinon return 0.
+// Si il y a une erreur d'interprétation (l'arbre Ast à une erreur), return 1, sinon return 0.
 int interpreter(Ast A, FILE* f, int* nb_clause, int* nb_sub);
 //////////////
 // Interprête un sous-arbre Ast représentant l'action de création de subgraph :
@@ -36,8 +36,10 @@ int interpreter_link(FILE* f, Ast A, int* nb_clause, int* nb_sub);
 // Ecrit les liens dans le fichier .dot
 int interpreter_maplink(FILE* f, Ast A, int* nb_clause, int* nb_sub);
 //////////////
+// Fonction d'affichage du flottant f dans la console
 void ecrire_float(float f);
 //////////////
+// Fonction d'affichage de la chaîne de caractère idf dans la console
 void ecrire_char(char *idf);
 //////////////
 // Prédicat, analyse une expression de type eag OPERATEUR_BOOLEEN eag

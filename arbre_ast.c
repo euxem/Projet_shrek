@@ -3,15 +3,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "arbre_ast.h"
-
+////////////////////////////////////////////////////
+// Fonction print_tab_in_subgraph :
 void print_tab_in_subgraph(FILE* f, int *nb_clause, int *nb_sub){
     for (int i = (*nb_sub)-(*nb_clause); i>0; i--){
         fprintf(f, "\t");
     }
 }
-
+////////////////////////////////////////////////////
 // Fonction de traduction d'arbre en fichier .dot
-// Renvoie 1 si un subgraph est ouvert, 0 sinon
+// Renvoie 1 si il y a une erreur d'interprétation, O sinon
 int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
 {
     char *temp_char;
@@ -145,7 +146,8 @@ int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
         return 1;
     }
 }
-
+////////////////////////////////////////////////////
+// Fonction de traduction de subgraph :
 int interpreter_subtitle(FILE *f, Ast A, int* nb_clause, int* nb_sub)
 {
     if (A != NULL && A->nature == N_STR)
@@ -163,7 +165,8 @@ int interpreter_subtitle(FILE *f, Ast A, int* nb_clause, int* nb_sub)
         return 1;
     }
 }
-
+////////////////////////////////////////////////////
+// Fonction de traduction de lien :
 int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
 {
     char aff[256];
@@ -206,7 +209,8 @@ int interpreter_link(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     fprintf(f, ", color=%s];\n", A->chaine);
     return erreur;
 }
-
+////////////////////////////////////////////////////
+// Fonction de traduction de liens multiples :
 int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
 {
     char aff[256];
@@ -385,17 +389,20 @@ int interpreter_maplink(FILE *f, Ast A, int* nb_clause, int* nb_sub)
     }
     return 0;
 }
-
+////////////////////////////////////////////////////
+// Fonction d'écriture chaîne de caractères :
 void ecrire_char(char *s)
 {
     printf("%s\n", s);
 }
-
+////////////////////////////////////////////////////
+// Fonction d'écriture de flottant :
 void ecrire_float(float f)
 {
     printf("%g\n", f);
 }
-
+////////////////////////////////////////////////////
+// Prédicat premettant l'analyse de conditions :
 int condition(Ast A)
 {
     float a, b;
@@ -432,3 +439,4 @@ int condition(Ast A)
     perror("Erreur AST : mauvaise interprétation de booléen\n");
     return 1;
 }
+////////////////////////////////////////////////////
