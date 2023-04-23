@@ -5,13 +5,17 @@
 #include <math.h>
 #include "table_symbole.h"
 
+///////////////////////////////////////////////////////////////////
+// variable globale -> Liste d'identificateurs
 Liste identifier;
-
+///////////////////////////////////////////////////////////////////
+// Fonction nouvelle cellule :
 Cellule *nouvelle_cellule_idf()
 {
     return (Cellule *)malloc(sizeof(Cellule));
 }
-
+///////////////////////////////////////////////////////////////////
+// Fonction permettant de créer une association entre un identificateur et ça valeur (floattant ou chaine de caractère en fonction de la déclaration dans le programme shrek) :
 int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
 {
     Cellule *cel;
@@ -26,11 +30,8 @@ int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
         {
             if (strcmp(cel->idf, idf) == 0)
             {
-                if (cel->nature != nature)
-                {
-                    perror("ERREUR: Type non reconnu, type attendu : STRING\n");
-                    return 1;
-                }
+                cel->nature=STRING;
+                cel->aff_float=0;
                 strcpy(cel->aff_char, chaine);
                 return 0;
             }
@@ -49,11 +50,7 @@ int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
         {
             if (strcmp(cel->idf, idf) == 0)
             {
-                if (cel->nature != nature)
-                {
-                    perror("ERREUR: Type non reconnu, type attendu : FLOAT\n");
-                    return 1;
-                }
+                cel->nature=FLOAT;
                 cel->aff_float = val;
                 sprintf(chaine, "%g", val);
                 strcpy(cel->aff_char, chaine);
@@ -86,11 +83,7 @@ int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
                 {
                     if (strcmp(cel->idf, &(idf[i - 1])) == 0)
                     {
-                        if (cel->nature != nature)
-                        {
-                            perror("ERREUR: Type non reconnu, type attendu : LIST DE STRING\n");
-                            return 1;
-                        }
+                        cel->nature=STRING;
                         for (j = strlen(chaine); b == true; j--)
                         {
                             if (chaine[j - 1] == ',' || chaine[j - 1] == '\'')
@@ -131,7 +124,8 @@ int creer_idf(Nature_Lexeme nature, char idf[256], char chaine[256], float val)
     }
     return 0;
 }
-
+///////////////////////////////////////////////////////////////////
+// Fonction permettant de trouver un identificateur correspondant a une chaine de caractère (si floattant, renvoie la chaine de caractère correspondant au chiffre)
 int trouver_idf_char(char *idf, char *aff)
 {
     Cellule *cel;
@@ -143,13 +137,16 @@ int trouver_idf_char(char *idf, char *aff)
     // Si idf n'est pas trouvé
     if (cel == NULL)
     {
+        perror("Erreur Identificateur\n");
+        printf("L'identificateur %s n'est pas définie.\n",idf);
         return 1;
     }
     // Si idf est trouvé
     strcpy(aff, cel->aff_char);
     return 0;
 }
-
+///////////////////////////////////////////////////////////////////
+// Fonction permettant de trouver un identificateur associer à un réel, erreur sinon (return 1)
 int trouver_idf_float(char *idf, float *aff)
 {
     Cellule *cel;
@@ -160,12 +157,20 @@ int trouver_idf_float(char *idf, float *aff)
     }
     if (cel == NULL)
     {
+        perror("Erreur Identificateur\n");
+        printf("L'identificateur %s n'est pas définie.\n",idf);
+        return 1;
+    }
+    if (cel->nature == STRING){
+        perror("Erreur Identificateur\n");
+        printf("Le type de l'identificateur %s est STRING, il ne peut donc pas être utilisé dans une eag.\n",cel->idf);
         return 1;
     }
     *aff = cel->aff_float;
     return 0;
 }
-
+///////////////////////////////////////////////////////////////////
+// Fonction appliquant une opération.
 int appliquer_operation(float *a, TypeAst op, float *b)
 {
     int a1,b1;
@@ -200,7 +205,8 @@ int appliquer_operation(float *a, TypeAst op, float *b)
     }
     return 0;
 }
-
+///////////////////////////////////////////////////////////////////
+// Fonction appliquant la concaténation :
 int appliquer_concat(char *a, TypeAst op, char *b, char **c)
 {
     if (op == N_CONCAT)
@@ -215,7 +221,8 @@ int appliquer_concat(char *a, TypeAst op, char *b, char **c)
         return 1;
     }
 }
-
+///////////////////////////////////////////////////////////////////
+// Fonction évaluant une eag
 int evaluer(Ast A, float* f)
 {
     int erreur;
@@ -253,7 +260,8 @@ int evaluer(Ast A, float* f)
         break;
     }
 }
-
+///////////////////////////////////////////////////////////////////
+// Fonction évaluant une chaine de caractère potentiellement concaténé
 int evaluer_char(Ast A, char **c)
 {
     char c1[256];
@@ -283,7 +291,8 @@ int evaluer_char(Ast A, char **c)
     }
     return 0;
 }
-
+///////////////////////////////////////////////////////////////////
+// Fonction libérant la liste chaînée identifier
 void free_chainee()
 {
     Cellule *cel, *cel_temp;
@@ -297,3 +306,4 @@ void free_chainee()
     }
     identifier.tete = NULL;
 }
+///////////////////////////////////////////////////////////////////

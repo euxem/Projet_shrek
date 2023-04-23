@@ -98,6 +98,9 @@ int interpreter(Ast A, FILE *f, int* nb_clause, int* nb_sub)
         return erreur;
     case N_ECRIREFLOAT:
         erreur = evaluer(A->gauche, &flot);
+        if (erreur){
+            return 1;
+        }
         ecrire_float(flot);
         return erreur;
     case N_ECRIRENODE:
