@@ -1104,7 +1104,11 @@ int op2(Ast *A){
 // Fonction Analyse :
 int analyse(char *nom_ficher, Ast *arbre)
 {
-    demarrer(nom_ficher);
+    int erreur = demarrer(nom_ficher);
+    if (erreur != 0)
+    {
+        return erreur;
+    }
     return Rec_pgm(arbre);
 }
 //////////////////////////////////////////////////////////////////

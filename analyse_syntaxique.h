@@ -161,6 +161,7 @@ int op2(Ast *A);
         - 0 si il n'y a pas d'erreur
         - 1 si il y a erreur syntaxique, le main affiche un warning syntaxique
         - 2 si il y a erreur lexicale, le main affiche un warning lexicale
+        - -1 si le fichier est vide
 */
 int analyse(char *nom_ficher, Ast *arbre);
 

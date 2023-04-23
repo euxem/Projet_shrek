@@ -15,8 +15,11 @@ Lexeme lexeme_en_cours; /* le lexeme courant */
 
 int demarrer(char *nom_fichier)
 {
-    int erreur;
-    erreur = demarrer_car(nom_fichier); // Demarre l'analyse du fichier
+    int erreur = demarrer_car(nom_fichier); // Demarre l'analyse du fichier
+    if (erreur == -1) // Si erreur = -1 alors le fichier est vide
+    {
+        return -1;
+    }
     return erreur || avancer(); // Demarre la reconnaissance de lexeme
 }
 
@@ -677,4 +680,10 @@ void perror(const char *s)
 {
     // Format du printf permettant d'afficher les erreur en gras et rouge
     printf("\x1b[1;31m%s\x1b[0m", s);
+}
+
+void pwarn(const char *s)
+{
+    // Format du printf permettant d'afficher les warning en gras et jaune
+    printf("\x1b[1;33m%s\x1b[0m", s);
 }

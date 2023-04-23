@@ -23,20 +23,22 @@ FILE *File;                          // le fichier d'entree
 
 int demarrer_car(char *nom_fichier)
 {
-   if (strlen(nom_fichier) == 0)
+   if (nom_fichier == NULL)
    {
+      printf("# Lecture sur l'entree standard #\n");
       File = stdin;
    }
    else
    {
       File = fopen(nom_fichier, "r");
-   };
-   if (nom_fichier == NULL){
-      return 1;
    }
    LigneCour = 1;
    ColonneCour = 0;
    avancer_car();
+   if (CarCour == EOF)
+   {
+      return -1;
+   }
    return 0;
 }
 
