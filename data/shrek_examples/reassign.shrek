@@ -1,0 +1,9 @@
+# En shrek les variables sont typées dynamiquement, cela veut dire
+que le type d'une variable est déterminé en fonction de la valeur
+qu'elle contient. #
+node:a = "A"; # déclaration de a comme un node #
+write:node a;
+a=2; # assignation d'un entier à a #
+write:node a; # l'interpréteur comprend que a est un entier malgré la commande node #
+node:a = "A";
+write:node a;
