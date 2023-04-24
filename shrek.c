@@ -34,7 +34,7 @@ int traduire_fichier(char *ipath, char *opath)
     if (err_analyse > 0)
     {
         pwarn("WARNING: analyse\n");
-        printf("Erreur d'analyse du fichier %s\n", ipath);
+        printf("Erreur d'analyse du fichier %s\n", ipath ? ipath : "stdin");
         return 1;
     }
     else if (err_analyse < 0)
@@ -48,7 +48,7 @@ int traduire_fichier(char *ipath, char *opath)
     if (interpreter(A, f, &nb_closed_sub, &nb_sub) != 0)
     {
         pwarn("WARNING: interprétation\n");
-        printf("Erreur d'interprétation du fichier %s\n", ipath);
+        printf("Erreur d'interprétation du fichier %s\n", ipath ? ipath : "stdin");
         return 1;
     }
     if (nb_closed_sub < nb_sub)
@@ -56,7 +56,7 @@ int traduire_fichier(char *ipath, char *opath)
         perror("Erreur: interprétation\n");
         printf("Subgraph non clos\n");
         pwarn("WARNING: \n");
-        printf("Erreur d'interprétation du fichier %s\n", ipath);
+        printf("Erreur d'interprétation du fichier %s\n", ipath ? ipath : "stdin");
         return 1;
     }
     if (nb_closed_sub > nb_sub)
@@ -64,7 +64,7 @@ int traduire_fichier(char *ipath, char *opath)
         perror("Erreur: interprétation\n");
         printf("Subgraph clos mais jamais ouvert\n");
         pwarn("WARNING: \n");
-        printf("Erreur d'interprétation du fichier %s\n", ipath);
+        printf("Erreur d'interprétation du fichier %s\n", ipath ? ipath : "stdin");
         return 1;
     }
     fprintf(f, "}\n");
