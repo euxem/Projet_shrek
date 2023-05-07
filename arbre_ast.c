@@ -92,6 +92,7 @@ int interpreter(Ast A, FILE *f, int *nb_closed_sub, int *nb_sub)
         temp_char = malloc(sizeof(char) * (256));
         printf("Veuillez rentrer un nom de noeuds pour %s : ", A->gauche->chaine);
         fgets(temp_char, 256, stdin);
+        temp_char[strlen(temp_char) - 1] = '\0';
         erreur = creer_idf(STRING, A->gauche->chaine, temp_char, 0);
         free(temp_char);
         return erreur;

@@ -1,0 +1,7 @@
+node:a = "a";
+node:b = "b";
+node:c = "c";
+link:a:b;
+sub = "bonjour";
+link:a:c;
+closesub;
