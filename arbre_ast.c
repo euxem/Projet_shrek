@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "arbre_ast.h"
+#include "type_ast.h"
+#include "lecture_caracteres.h"
+
 ////////////////////////////////////////////////////
 // Fonction print_tab_in_subgraph :
 void print_tab_in_subgraph(FILE *f, int *nb_closed_sub, int *nb_sub)

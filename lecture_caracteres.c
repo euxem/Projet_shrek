@@ -11,6 +11,8 @@
 #include <string.h>
 #include "lecture_caracteres.h"
 
+int entr_stdr = 0;   // savoir si on est en mode entree standard
+
 /* --------------------------------------------------------------------- */
 
 // Les variables locales au module

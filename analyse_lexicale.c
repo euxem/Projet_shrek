@@ -78,10 +78,6 @@ int reconnaitre_lexeme()
             case C_LETTRE: // c'est une lettre, on reconnait le mot clé
                 lexeme_en_cours.nature = reconnaitre_mot_cle();
                 etat = E_FIN;
-                if (!est_caractère_lexeme_suivant(caractere_courant()))
-                {
-                    avancer_car();
-                }
                 break;
 
             case C_CHIFFRE: // c'est un chiffre on passe dans le cas réel de l'automate
@@ -520,6 +516,10 @@ Nature_Lexeme reconnaitre_mot_cle()
     {
         return FAIT;
     }
+    else if (strcmp(lexeme_en_cours.chaine, "quit") == 0)
+    {
+        return QUIT;
+    }
     else if ((strcmp(lexeme_en_cours.chaine, "red") == 0) || (strcmp(lexeme_en_cours.chaine, "green") == 0) || (strcmp(lexeme_en_cours.chaine, "blue") == 0) || (strcmp(lexeme_en_cours.chaine, "yellow") == 0) || (strcmp(lexeme_en_cours.chaine, "black") == 0) || (strcmp(lexeme_en_cours.chaine, "grey") == 0))
     {
         return COLOR;
@@ -644,6 +644,9 @@ void afficher_lexeme(Lexeme lex)
         break;
     case FIN:
         strcpy(natstr, "FIN,");
+        break;
+    case QUIT:
+        strcpy(natstr, "QUIT,");
         break;
     case ERREUR:
         strcpy(natstr, "ERREUR,");

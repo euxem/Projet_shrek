@@ -11,6 +11,17 @@
 #include "type_ast.h"
 #include "arbre_ast.h"
 
+////////////////////////////////////////////////////
+// Permet de vider le buffer d'entree standard
+void viderBuffer()
+{
+    int c = caractere_courant();
+    while (c != '\n' && c != EOF)
+    {
+        c = getchar();
+    }
+}
+
 void show_help(char **argv)
 {
     printf("Usage: %s [-i input file] [-o output file] [-h]\n", argv[0]);
@@ -23,7 +34,7 @@ void show_help(char **argv)
 
 int traduire_fichier(char *ipath, char *opath)
 {
-    Ast A;
+    Ast A=NULL;
     FILE *f;
     int nb_closed_sub = 0;
     int nb_sub = 0;
@@ -43,6 +54,8 @@ int traduire_fichier(char *ipath, char *opath)
         printf("Le fichier %s est vide\n", ipath ? ipath : "stdin");
         return 0;
     }
+
+    viderBuffer();
 
     fprintf(f, "graph G {\n");
     if (interpreter(A, f, &nb_closed_sub, &nb_sub) != 0)

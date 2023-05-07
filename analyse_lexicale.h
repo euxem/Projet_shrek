@@ -67,6 +67,7 @@ typedef enum
    FAIRE,      // La nature du lexeme est le mot clé do
    FAIT,       // La nature du lexeme est done (fin de while)
    CLOSUB,     // La nature du lexeme est le mot clé closesub (fin de subgraph)
+   QUIT,       // La nature du lexeme est le mot clé quit (fin du programme utile pour l'entree standard)
    ERREUR      // Erreur de nature lexeme
 } Nature_Lexeme;
 

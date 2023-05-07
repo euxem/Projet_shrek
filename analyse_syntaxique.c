@@ -24,11 +24,11 @@ int Rec_pgm(Ast *A)
     {
         return 1; // Si erreur
     }
-    if (lexeme_courant().nature != FIN)
+    if (lexeme_courant().nature != FIN && lexeme_courant().nature != QUIT)
     {
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
-        printf("HINT : Deux points attendu.\n");
+        printf("HINT : Fin de fichier ou quit attendu.\n");
         return 1; // Si erreur
     }
 
@@ -38,6 +38,7 @@ int Rec_pgm(Ast *A)
 int Rec_seq_inst(Ast *A)
 {
     Ast A1;
+    A1 = nouvelle_cellule_ast();
     if (Rec_inst(&A1) != 0)
     {
         return 1; // Si erreur
@@ -51,18 +52,18 @@ int Rec_seq_inst(Ast *A)
 ////////////
 int Rec_suite_seq_inst(Ast *A, Ast *A1)
 {
-    if (lexeme_courant().nature != P_VIRG)
+    if (lexeme_courant().nature != P_VIRG && lexeme_courant().nature != QUIT)
     {
         perror("Erreur syntaxique :\n");
         afficher_lexeme(lexeme_courant());
         printf("HINT : Point virgule attendu.\n");
         return 1; // Si erreur
     }
-    if (avancer() != 0)
+    if (lexeme_courant().nature != QUIT && avancer() != 0)
         {
             return 1; // Si erreur
         }
-    if (lexeme_courant().nature == FIN || lexeme_courant().nature == SINON || lexeme_courant().nature == FSI || lexeme_courant().nature == FAIT || lexeme_courant().nature == ROF)
+    if (lexeme_courant().nature == FIN || lexeme_courant().nature == QUIT || lexeme_courant().nature == SINON || lexeme_courant().nature == FSI || lexeme_courant().nature == FAIT || lexeme_courant().nature == ROF)
     {
         (*A) = (*A1);
         return 0; // Aucune erreur
@@ -105,7 +106,6 @@ int Rec_inst(Ast *A)
         break;
 
     case SI:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_SI;
         if (avancer() != 0)
         {
@@ -162,7 +162,6 @@ int Rec_inst(Ast *A)
         break;
 
     case TANT_QUE:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_TANT_QUE;
         if (avancer() != 0)
         {
@@ -199,7 +198,7 @@ int Rec_inst(Ast *A)
         break;
 
     case FOR:
-        (*A) = nouvelle_cellule_ast();
+        A1= nouvelle_cellule_ast();
         (*A)->nature = N_FOR;
         if (avancer() != 0)
         {
@@ -300,7 +299,6 @@ int Rec_inst(Ast *A)
         break;
 
     case CLOSUB:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_CLOSUB;
         if (avancer() != 0)
         {
@@ -309,7 +307,6 @@ int Rec_inst(Ast *A)
         break;
 
     case LINK:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_LINK;
         if (avancer() != 0)
         {
@@ -391,6 +388,8 @@ int Rec_inst(Ast *A)
             return 1; // Si erreur
         }
         break;
+    case QUIT:
+        break;
     default:
         if (Rec_seq_aff(A) != 0)
         {
@@ -408,7 +407,6 @@ int Rec_suite_ecrire(Ast *A)
     switch (lexeme_courant().nature)
     {
     case NODE:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_ECRIRENODE;
         if (avancer() != 0)
         {
@@ -436,7 +434,6 @@ int Rec_suite_ecrire(Ast *A)
         Rec_suite_concat(&A1);
         break;
     case FLOAT:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_ECRIREFLOAT;
         if (avancer() != 0)
         {
@@ -460,7 +457,6 @@ int Rec_seq_aff(Ast *A)
     switch (lexeme_courant().nature)
     {
     case NODE:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_NODE;
         if (avancer() != 0)
         {
@@ -473,7 +469,6 @@ int Rec_seq_aff(Ast *A)
         break;
 
     case SUBGRAPH:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_SUB;
         if (avancer() != 0)
         {
@@ -526,7 +521,6 @@ int Rec_seq_aff(Ast *A)
         switch (lexeme_courant().nature)
         {
         case NODE:
-            (*A) = nouvelle_cellule_ast();
             (*A)->nature = N_LIRENODE;
             if (avancer() != 0)
             {
@@ -549,7 +543,6 @@ int Rec_seq_aff(Ast *A)
         }
             break;
         case IDF:
-            (*A) = nouvelle_cellule_ast();
             (*A)->nature = N_LIREFLOAT;
             A1 = nouvelle_cellule_ast();
             (*A)->gauche = A1;
@@ -570,7 +563,6 @@ int Rec_seq_aff(Ast *A)
         break;
 
     case IDF:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_AFFINT;
         A1 = nouvelle_cellule_ast();
         (*A)->gauche = A1;
@@ -865,7 +857,6 @@ int Rec_suite_map(Ast *A)
     switch (lexeme_courant().nature)
     {
     case NODE:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_MAPNODE;
         if (avancer() != 0)
         {
@@ -913,7 +904,6 @@ int Rec_suite_map(Ast *A)
         break;
 
     case LINK:
-        (*A) = nouvelle_cellule_ast();
         (*A)->nature = N_MAPLINK;
         if (avancer() != 0)
         {
