@@ -22,6 +22,8 @@ void viderBuffer()
     }
 }
 
+////////////////////////////////////////////////////
+// Affiche le menu d'aide dans le terminale
 void show_help(char **argv)
 {
     printf("Usage: %s [-i input file] [-o output file] [-h]\n", argv[0]);
@@ -32,39 +34,44 @@ void show_help(char **argv)
     printf("Le fichiers .dot seront créés dans un sous dossier /dot_generes.\n");
 }
 
+////////////////////////////////////////////////////
+/* Lance l'analyse lexicale et syntaxique du fichier, 
+pour ensuite lancer l'interprétation et la traduction du fichier en .dot */
 int traduire_fichier(char *ipath, char *opath)
 {
-    Ast A=NULL;
-    FILE *f;
-    int nb_closed_sub = 0;
-    int nb_sub = 0;
+    /////////////////////////////
+    // Types :
+    Ast A=NULL;             // Racine de l'arbre Ast à interpréter
+    FILE *f;                // Fichier de sortie (output en .dot)
+    int nb_closed_sub = 0;  // Nombre de sous_graph fermé
+    int nb_sub = 0;         // Nombre de sous_graph ouvert
 
-    f = fopen(opath, "w");
+    f = fopen(opath, "w");  // Ouverture du fichier d'écriture
 
-    int err_analyse = analyse(ipath, &A);
-    if (err_analyse > 0)
+    int err_analyse = analyse(ipath, &A);   // Analyse du fichier
+    if (err_analyse > 0)                    // Si 1, erreur d'analyse -> WARNING
     {
         pwarn("WARNING: analyse\n");
         printf("Erreur d'analyse du fichier %s\n", ipath ? ipath : "stdin");
         return 1;
     }
-    else if (err_analyse < 0)
+    else if (err_analyse < 0)               // Si -1, fichier vide -> WARNING
     {
         pwarn("WARNING: fichier vide\n");
         printf("Le fichier %s est vide\n", ipath ? ipath : "stdin");
         return 0;
     }
 
-    viderBuffer();
+    viderBuffer();                          // Vide le buffer en cours (utile pour le mode entrée standard)
 
-    fprintf(f, "graph G {\n");
-    if (interpreter(A, f, &nb_closed_sub, &nb_sub) != 0)
+    fprintf(f, "graph G {\n");              // Ouvre le graph principale dans le .dot
+    if (interpreter(A, f, &nb_closed_sub, &nb_sub) != 0) // Interprétation du programme (si !=0 -> WARNING)
     {
         pwarn("WARNING: interprétation\n");
         printf("Erreur d'interprétation du fichier %s\n", ipath ? ipath : "stdin");
         return 1;
     }
-    if (nb_closed_sub < nb_sub)
+    if (nb_closed_sub < nb_sub)             // Si il y a plus de sous-graph ouvert que de sous-graph clos -> ERREUR D'INTERPRÉTATION
     {
         perror("Erreur: interprétation\n");
         printf("Subgraph non clos\n");
@@ -72,7 +79,7 @@ int traduire_fichier(char *ipath, char *opath)
         printf("Erreur d'interprétation du fichier %s\n", ipath ? ipath : "stdin");
         return 1;
     }
-    if (nb_closed_sub > nb_sub)
+    if (nb_closed_sub > nb_sub)             // Si il y a moins de sous-graph ouvert que de sous-graph clos -> ERREUR D'INTERPRÉTATION
     {
         perror("Erreur: interprétation\n");
         printf("Subgraph clos mais jamais ouvert\n");
@@ -80,18 +87,20 @@ int traduire_fichier(char *ipath, char *opath)
         printf("Erreur d'interprétation du fichier %s\n", ipath ? ipath : "stdin");
         return 1;
     }
-    fprintf(f, "}\n");
+    fprintf(f, "}\n");      // Fermeture du graph principale 
 
-    printf("\x1b[1;32mSuccès de la traduction : \x1b[0m");
-    printf("fichier %s généré.\n", opath);
+    printf("\x1b[1;32mSuccès de la traduction : \x1b[0m");  // succès de la traduction
+    printf("fichier %s généré.\n", opath);                  // lieu de la génération
 
-    free_ast(A);
-    free_chainee();
-    fclose(f);
+    free_ast(A);    // libération de l'arbre AST
+    free_chainee(); // libération de la liste chaînée
+    fclose(f);      // fermeture du fichier
 
     return 0;
 }
 
+////////////////////////////////////////////////////
+// Programme principale, gère l'interface utilisateur
 int main(int argc, char **argv)
 {
     // Compteur d'erreurs et de fichiers traités

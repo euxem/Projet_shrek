@@ -1,4 +1,5 @@
 pgm -> seq_inst FIN
+pgm -> seq_inst QUIT
 -----------------------
 seq_inst -> inst suite_seq_inst
 -----------------------
@@ -6,11 +7,13 @@ suite_seq_inst -> SEPARATEUR seq_inst
 suite_seq_inst -> e
 -----------------------
 inst -> seq_aff
-inst -> FOR DEUX_POINT suite_for
+inst -> MAP DEUX_POINT suite_map
 inst -> LINK DEUX_POINT IDF DEUX_POINT IDF suite_link
 inst -> ECRIRE DEUX_POINT suite_ecrire
-inst -> SI condition ALORS seq_inst SINON seq_inst
+inst -> SI condition ALORS seq_inst SINON seq_inst FIN_SI
+inst -> SI condition ALORS seq_inst FIN_SI
 inst -> TANT_QUE condition FAIRE seq_inst FAIT
+inst -> FOR PARO IDF AFF eag SEPARATEUR condition SEPARATEUR eag PARF FAIRE seq_inst FIN_FOR
 -----------------------
 seq_aff -> NODE DEUX_POINT IDF AFF suite_node
 seq_aff -> SUBGRAPH DEUX_POINT AFF string
@@ -65,10 +68,10 @@ col -> blue
 col -> yellow
 col -> green
 -----------------------
-suite_for -> NODE inter parent
-suite_for -> LINK inter inter
-suite_for -> LINK inter inter crochet
-suite_for -> LINK inter inter crochet parent
+suite_map -> NODE inter parent
+suite_map -> LINK inter inter
+suite_map -> LINK inter inter crochet
+suite_map -> LINK inter inter crochet parent
 -----------------------
-IDF -> lettre unique ou suite de truc
+IDF -> tous mot n'appartenant pas au mots clé
 AFF -> =
