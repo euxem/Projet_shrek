@@ -122,6 +122,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    // Parcours des options
     while ((c = getopt(argc, argv, "i:o:f:h")) != -1)
     {
         switch (c)
@@ -145,16 +146,17 @@ int main(int argc, char **argv)
         }
     }
 
+    // Si un dossier est spécifié
     if (folder)
     {
         DIR *d;
         struct dirent *dir;
-        d = opendir(fpath);
+        d = opendir(fpath); // Ouverture du dossier
 
         if (d == NULL)
         {
             perror("Erreur d'ouverture du dossier\n");
-            printf("%s/%s\n", argv[0], fpath);
+            printf("%s\n", fpath);
             printf("HINT : vérifiez que le chemin est correct et que vous avez les droits.\n");
             return 1;
         }
@@ -188,6 +190,7 @@ int main(int argc, char **argv)
                     // On compte le fichier traité
                     nb_files++;
 
+                    // Assemble le chemin du fichier d'entrée
                     ipath = (char *)malloc((strlen(dir->d_name) + strlen(fpath) + 2) * sizeof(char));
                     strcpy(ipath, fpath);
                     strcat(ipath, "/");
@@ -209,7 +212,7 @@ int main(int argc, char **argv)
                     }
                     printf("\n------\n");
 
-                    // Free
+                    // Free les strings des chemins
                     free(ipath);
                     free(opath);
                 }
@@ -220,7 +223,7 @@ int main(int argc, char **argv)
         free(dotpath);
         closedir(d);
     }
-    else
+    else // Si on travaille sur un fichier unique (stdin ou file)
     {
         // Si aucun fichier de sortie n'est spécifié, on utilise output.dot
         if (opath == NULL)
@@ -231,6 +234,7 @@ int main(int argc, char **argv)
         traduire_fichier(ipath, opath);
     }
 
+    // Affichage de l'erreur rencontrée
     if (err)
     {
         char *err_msg = malloc(30);

@@ -1,0 +1,7 @@
+graph G {
+	a -- b;
+	subgraph cluster_1 {
+		label = "bonjour";
+		a -- c;
+	}
+}
